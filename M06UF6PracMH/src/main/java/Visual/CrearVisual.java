@@ -4,17 +4,23 @@
  */
 package Visual;
 
+import Logica.Crear;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import java.util.Scanner;
+import org.bson.Document;
 
 /**
  *
  * @author Adrix
  */
 public class CrearVisual {
-    public static void crearRemot(Scanner in) {
-        System.out.println("Dame la ruta absoluta del repositorio que quieres crear");
-        var rep = in.nextLine();
-        //metodo de crear
+    public static void crearRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        System.out.println("Dame la ruta absoluta del repositorio que quieres crear.");
+        System.out.println("Ej. c:\\home\\user\\getrepo2");
+        String repositorio = in.nextLine();
+        repositorio = repositorio.replace("\\", "_").substring(3);
+        Crear.crearRepositorio(in, coleccio, bbdd, repositorio);
         System.out.println("Repositorio remoto creado");
     }
 }

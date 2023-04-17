@@ -11,4 +11,16 @@
         <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>org.openjfx.m06uf6pracmh.M06UF6PracMH</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.12.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.12.1</version>
+        </dependency>
+    </dependencies>
 </project>

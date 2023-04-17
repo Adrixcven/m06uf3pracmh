@@ -5,7 +5,10 @@
  */
 package Visual;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import java.util.Scanner;
+import org.bson.Document;
 
 /**
  *
@@ -13,7 +16,7 @@ import java.util.Scanner;
  */
 public class BajarVisual {
 
-    public static void bajarRemot(Scanner in) {
+    public static void bajarRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime la ruta del archivo que quieres bajar");
