@@ -43,7 +43,7 @@ public class Menu_Inicial {
             ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
             mongoClient = MongoClients.create(connectionString);
             bbdd = mongoClient.getDatabase("GETBD");
-        }catch (Exception ex){
+        }catch (Exception ex){ //TODO cambiar exception
             logger.error("Excepcion: " + ex.toString());
         }   
         while (continuar == true) {
@@ -82,6 +82,7 @@ public class Menu_Inicial {
                     ClonarVisual.compararRemot(in, coleccio, bbdd);
                     break;
                 case 7:
+                    mongoClient.close();
                     System.out.println("Has elegido salir del Programa. Hasta la vista!");
                     continuar = false;
                     break;
