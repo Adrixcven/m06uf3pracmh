@@ -4,6 +4,7 @@
  */
 package Visual;
 
+import Logica.Comparar;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.util.Scanner;
@@ -14,6 +15,7 @@ import org.bson.Document;
  * @author Adrix
  */
 public class CompararVisual {
+
     public static void compararRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
@@ -26,15 +28,14 @@ public class CompararVisual {
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                //metodo de comparación con detalles
+                Comparar.compararConDetalles(rep, ruta, coleccio);
                 continuar = false;
             } else if (detalles == 0) {
-                //metodo de comparación sin detalles
+                Comparar.compararSinDetalles(rep, ruta, coleccio);
                 continuar = false;
             } else {
                 System.out.println("Error");
             }
         }
-        
     }
 }
