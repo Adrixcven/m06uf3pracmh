@@ -4,6 +4,7 @@
  */
 package Visual;
 
+import Logica.Eliminar;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.util.Scanner;
@@ -15,9 +16,14 @@ import org.bson.Document;
  */
 public class EliminarVisual {
     public static void eliminarRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
-        System.out.println("Dame el identificador del repositorio remoto que quieres eliminar");
+        System.out.println("Dame la ruta absoluta del repositorio que quieres eliminar.");
+        System.out.println("Ej. c:\\home\\user\\getrepo2");
         String repositorio = in.nextLine();
-        //metodo eliminar
+        //Cambia el String de la ruta del repositorio al que sera el identificador del repositorio.
+        String repConvertida = repositorio.replace("\\", "/");
+        repConvertida = repConvertida.replaceAll("^[a-zA-Z]:", "");
+        repositorio = repConvertida.replace("/", "_").substring(3);
+        Eliminar.eliminarRepositorio(in, coleccio, bbdd, repositorio);
         System.out.println("Repositorio remoto eliminado");
     }
 }
