@@ -25,7 +25,7 @@ public class ClonarVisual {
         var rep = in.nextLine();
         System.out.println("Dime el timestamp que quieres usar. Ej: 2023-04-19T12:00:00Z");
         var timestamp = in.nextLine();
-        
+        coleccio = bbdd.getCollection(rep);
         Document filtro = new Document("timestamp", new Document("$lte", timestamp));
         
         FindIterable<Document> documentos = coleccio.find(filtro);
