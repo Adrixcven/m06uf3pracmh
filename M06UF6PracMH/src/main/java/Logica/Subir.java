@@ -123,7 +123,7 @@ public class Subir {
             }
 
         } catch (IOException ex) {
-        
+
         }
     }
 
@@ -135,9 +135,11 @@ public class Subir {
                 if (archivo.isFile()) {
                     // hacer algo con el archivo
                     SubirArchivoConForce(in, coleccio, ruta);
+                }
+            }
+        } else{
+            SubirArchivoConForce(in, coleccio, ruta);
         }
-    }
-}
     }
 
     public static void esDirectorioNoForce(Scanner in, MongoCollection<Document> coleccio, String rutarchivo) {
