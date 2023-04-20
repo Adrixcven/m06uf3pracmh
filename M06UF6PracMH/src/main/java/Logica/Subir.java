@@ -21,52 +21,83 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * Clase encargada de subir archivos a una base de datos MongoDB.
+ */
 public class Subir {
 
+    /**
+     *
+     * Método para subir un archivo a la base de datos, permitiendo actualizarlo
+     * si ya existe.
+     *
+     * @param in Scanner para entrada de datos por teclado.
+     * @param coleccio Colección de la base de datos en la que se desea guardar
+     * el archivo.
+     * @param ruta Ruta del archivo que se desea subir.
+     */
     public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File file = new File(ruta);
             BufferedReader lector = new BufferedReader(new FileReader(file));
             StringBuilder sb = new StringBuilder();
             String linea;
-            while ((linea = lector.readLine()) != null) {
-                sb.append(linea);
-            }
-            lector.close();
-            String string = sb.toString();
-            //Guardamos la ultima fecha de modificación del archivo.
-            Date fechaLocal = new Date(file.lastModified());
-            //Busca en la coleccion el archivo.
-            Document query = new Document("nom", file.getName());
-            Document archivo = coleccio.find(query).first();
+            if (file.getName().endsWith(".java") || file.getName().endsWith(".txt")
+                    || file.getName().endsWith(".xml") || file.getName().endsWith(".html")) {
+                while ((linea = lector.readLine()) != null) {
+                    sb.append(linea);
+                }
+                lector.close();
+                String string = sb.toString();
+                //Guardamos la ultima fecha de modificación del archivo.
+                Date fechaLocal = new Date(file.lastModified());
+                //Busca en la coleccion el archivo.
+                Document query = new Document("nom", file.getName());
+                Document archivo = coleccio.find(query).first();
 
-            //Si el archivo existe en la colección
-            if (archivo != null) {
-                //coje la fecha del archivo remoto.
-                Date fechaRemota = archivo.getDate("fecha_modificacion");
-                //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
-                if (fechaLocal.after(fechaRemota)) {
-                    // Actualiza el archivo en la colección con el contenido de la nueva versión
-                    Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
-                    coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
-                    System.out.println("Archivo actualizado.");
+                //Si el archivo existe en la colección
+                if (archivo != null) {
+                    //coje la fecha del archivo remoto.
+                    Date fechaRemota = archivo.getDate("fecha_modificacion");
+                    //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
+                    if (fechaLocal.after(fechaRemota)) {
+                        // Actualiza el archivo en la colección con el contenido de la nueva versión
+                        Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                        coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
+                        System.out.println("Archivo actualizado.");
+                    } else {
+                        System.out.println("El archivo está actualizado.");
+                    }
                 } else {
-                    System.out.println("El archivo está actualizado.");
+                    // Inserta el archivo a la colección
+                    Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                    coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
+                    System.out.println("Archivo insertado en el Repositorio Remoto.");
                 }
             } else {
-                // Inserta el archivo a la colección
-                Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
-                coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
-                System.out.println("Archivo insertado en el Repositorio Remoto.");
+                System.out.println("El archivo no es de tipos .java, .txt, .xml o .html.");
             }
         } catch (Exception ex) {
 
         }
     }
 
-    public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String rutarchiv) {
+    /**
+     *
+     * Método para subir un archivo a la base de datos, sin permitir
+     * actualizaciones si ya existe.
+     *
+     * @param in Scanner para entrada de datos por teclado.
+     *
+     * @param coleccio Colección de la base de datos en la que se desea guardar
+     * el archivo.
+     *
+     * @param rutarchivo Archivo que se desea subir.
+     */
+    public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
-            File rutarchivo = new File(rutarchiv);
+            File rutarchivo = new File(ruta);
             BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
             StringBuilder sb = new StringBuilder();
             String linea;
@@ -91,7 +122,8 @@ public class Subir {
                 System.out.println("Archivo insertado en la base de datos.");
             }
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
+        
         }
     }
 
@@ -103,11 +135,9 @@ public class Subir {
                 if (archivo.isFile()) {
                     // hacer algo con el archivo
                     SubirArchivoConForce(in, coleccio, ruta);
-                }
-            }
-        } else {
-            SubirArchivoConForce(in, coleccio, ruta);
         }
+    }
+}
     }
 
     public static void esDirectorioNoForce(Scanner in, MongoCollection<Document> coleccio, String rutarchivo) {

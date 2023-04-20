@@ -15,8 +15,29 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * Esta clase permite subir un archivo a un repositorio remoto a través de una
+ * colección de MongoDB.
+ *
+ * Se debe proporcionar la colección y la base de datos donde se encuentra el
+ * repositorio.
+ *
+ * Se solicita al usuario la ruta del repositorio y el archivo a subir, así como
+ * si se desea hacer la subida con force.
+ */
 public class SubirVisual {
 
+    /**
+     *
+     * Sube un archivo a un repositorio remoto a través de una colección de
+     * MongoDB.
+     *
+     * @param coleccio la colección de MongoDB que representa el repositorio
+     * remoto
+     *
+     * @param bbdd la base de datos donde se encuentra la colección
+     */
     public static void subirRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
         Scanner in = new Scanner(System.in);
         Boolean continuar = true;

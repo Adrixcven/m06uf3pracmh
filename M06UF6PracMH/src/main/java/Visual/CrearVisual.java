@@ -14,8 +14,26 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * La clase CrearVisual es responsable de crear un repositorio remoto a partir
+ * de la ruta absoluta del repositorio proporcionada por el usuario.
+ *
+ * La ruta se convierte en un identificador de repositorio único, que se utiliza
+ * para crear el repositorio remoto en una base de datos MongoDB.
+ */
 public class CrearVisual {
 
+    /**
+     *
+     * Este método estático permite crear un repositorio remoto a partir de la
+     * ruta absoluta del repositorio proporcionada por el usuario.
+     *
+     * @param coleccio la colección de MongoDB en la que se creará el
+     * repositorio remoto.
+     * @param bbdd la base de datos MongoDB en la que se creará el repositorio
+     * remoto.
+     */
     public static void crearRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
         Scanner in = new Scanner(System.in);
         System.out.println("Dame la ruta absoluta del repositorio que quieres crear.");
