@@ -67,11 +67,11 @@ public class SubirVisual {
             System.out.println("0. No");
             int force = in.nextInt();
             if (force == 1) {
-                Subir.SubirArchivoConForce(in, coleccio, ruta);
+                Subir.esDirectorio(in, coleccio, ruta);
                 continuar = false;
                 System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else if (force == 0) {
-                Subir.SubirArchivoSinForce(in, coleccio, rutarchivo);
+                Subir.esDirectorioNoForce(in, coleccio, ruta);
                 continuar = false;
                 System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else {

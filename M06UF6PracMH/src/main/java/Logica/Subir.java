@@ -23,7 +23,7 @@ import org.bson.Document;
  */
 public class Subir {
 
-    public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
+    public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File file = new File(ruta);
             BufferedReader lector = new BufferedReader(new FileReader(file));
@@ -47,9 +47,8 @@ public class Subir {
                 //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
                 if (fechaLocal.after(fechaRemota)) {
                     // Actualiza el archivo en la colección con el contenido de la nueva versión
-                    Document update = new Document("$set", new Document("contenido", string)
-                            .append("fecha_modificacion", fechaLocal));
-                    coleccio.updateOne(query, update);
+                    Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                    coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
                     System.out.println("Archivo actualizado.");
                 } else {
                     System.out.println("El archivo está actualizado.");
@@ -60,14 +59,14 @@ public class Subir {
                 coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
                 System.out.println("Archivo insertado en el Repositorio Remoto.");
             }
-
         } catch (Exception ex) {
 
         }
     }
 
-    public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, File rutarchivo) {
+    public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String rutarchiv) {
         try {
+            File rutarchivo = new File(rutarchiv);
             BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
             StringBuilder sb = new StringBuilder();
             String linea;
@@ -82,9 +81,8 @@ public class Subir {
             Document archivo = coleccio.find(query).first();
             if (archivo != null) {
                 // Actualiza el archivo en la colección con el contenido de la nueva versión
-                Document update = new Document("$set", new Document("contenido", string)
-                            .append("fecha_modificacion", fechaLocal));
-                coleccio.updateOne(query, update);
+                Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
                 System.out.println("Archivo actualizado en la base de datos.");
             } else {
                 // Inserta el archivo a la colección
@@ -93,8 +91,37 @@ public class Subir {
                 System.out.println("Archivo insertado en la base de datos.");
             }
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+        }
+    }
 
+    public static void esDirectorio(Scanner in, MongoCollection<Document> coleccio, String ruta) {
+        File file = new File(ruta);
+        if (file.isDirectory()) {
+            File[] archivos = file.listFiles();
+            for (File archivo : archivos) {
+                if (archivo.isFile()) {
+                    // hacer algo con el archivo
+                    SubirArchivoConForce(in, coleccio, ruta);
+                }
+            }
+        } else {
+            SubirArchivoConForce(in, coleccio, ruta);
+        }
+    }
+
+    public static void esDirectorioNoForce(Scanner in, MongoCollection<Document> coleccio, String rutarchivo) {
+        File file = new File(rutarchivo);
+        if (file.isDirectory()) {
+            File[] archivos = file.listFiles();
+            for (File archivo : archivos) {
+                if (archivo.isFile()) {
+                    // hacer algo con el archivo
+                    SubirArchivoSinForce(in, coleccio, rutarchivo);
+                }
+            }
+        } else {
+            SubirArchivoSinForce(in, coleccio, rutarchivo);
         }
     }
 }

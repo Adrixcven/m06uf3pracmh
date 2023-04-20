@@ -32,4 +32,12 @@ public class Mapeig {
          return ret;
         
     }
+    public static Document updateDocument(Archivodata e) {
+
+        
+        Document update = new Document("$set", new Document("tiempo", e.getTiempo())
+                .append("contenido", e.getContenido()));
+
+        return update;
+    }
 }
