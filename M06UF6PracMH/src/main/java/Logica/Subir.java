@@ -132,6 +132,17 @@ public class Subir {
         }
     }
 
+    /**
+     *
+     * Comprueba si una ruta es un directorio o un archivo, y ejecuta una acción
+     * según sea el caso. Si la ruta es un directorio, recorre sus archivos y
+     * ejecuta una acción para cada uno de ellos.
+     *
+     * @param in Scanner para leer entrada del usuario.
+     * @param coleccio Colección de documentos de MongoDB donde se guardarán los
+     * archivos.
+     * @param ruta Ruta del archivo o directorio a comprobar.
+     */
     public static void esDirectorio(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         File file = new File(ruta);
         if (file.isDirectory()) {
@@ -142,9 +153,22 @@ public class Subir {
                     SubirArchivoConForce(in, coleccio, ruta);
                 }
             }
+        } else {
+            SubirArchivoConForce(in, coleccio, ruta);
         }
     }
 
+    /**
+     *
+     * Comprueba si una ruta es un directorio o un archivo, y ejecuta una acción
+     * según sea el caso. Si la ruta es un directorio, recorre sus archivos y
+     * ejecuta una acción para cada uno de ellos.
+     *
+     * @param in Scanner para leer entrada del usuario.
+     * @param coleccio Colección de documentos de MongoDB donde se guardarán los
+     * archivos.
+     * @param rutarchivo Ruta del archivo o directorio a comprobar.
+     */
     public static void esDirectorioNoForce(Scanner in, MongoCollection<Document> coleccio, String rutarchivo) {
         File file = new File(rutarchivo);
         if (file.isDirectory()) {

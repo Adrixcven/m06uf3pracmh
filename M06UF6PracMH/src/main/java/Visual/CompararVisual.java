@@ -20,8 +20,10 @@ public class CompararVisual {
         Scanner in = new Scanner(System.in);
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
-        System.out.println("Dime la ruta del archivo que quieres comparar");
-        var ruta = in.nextLine();
+        System.out.println("Dime el nombre del archivo Local que quieres comparar");
+        var rutaRep = in.nextLine();
+        System.out.println("Dime la ruta del archivo Local que quieres comparar");
+        var rutaLocal = in.nextLine();
         var continuar = true;
         while (continuar) {
             System.out.println("Quieres hacer que tenga detalles?");
@@ -29,10 +31,10 @@ public class CompararVisual {
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                Comparar.compararConDetalles(rep, ruta, bbdd);
+                Comparar.compararConDetalles(rep, rutaLocal, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compararSinDetalles(bbdd, rep, ruta);
+                //Comparar.compararSinDetalles(bbdd, rep, rutaRep, false);
                 continuar = false;
             } else {
                 System.out.println("Error");

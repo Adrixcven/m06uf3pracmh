@@ -13,8 +13,14 @@ import org.bson.Document;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  *
@@ -52,44 +58,49 @@ public class Comparar {
         }
     }
 
-    public static void compararSinDetalles(MongoDatabase database, String nombreArchivoRemoto, String rutaArchivoLocal) {
-        MongoCollection<Document> collection = database.getCollection("archivos");
+    /*public static void compararSinDetalles(MongoDatabase bbdd, String repositoryPath, String filePathString, boolean lineDetail) {
+        Scanner str = new Scanner(System.in);
+        int option = -1;
 
-        File archivoLocal = new File(rutaArchivoLocal);
-
-        if (!archivoLocal.exists()) {
-            System.out.println("El archivo local no existe.");
-            return;
-        }
-
-        Document archivoRemoto = collection.find(new Document("nombre", nombreArchivoRemoto)).first();
-
-        if (archivoRemoto == null) {
-            System.out.println("El archivo remoto no existe.");
-            return;
-        }
-
-        long timestampRemoto = archivoRemoto.getLong("timestamp");
-        long timestampLocal = archivoLocal.lastModified();
-
-        if (timestampLocal == timestampRemoto) {
-            String contenidoRemoto = archivoRemoto.getString("contenido");
-
+        while (option != 0) {
             try {
-                byte[] contenidoLocalBytes = Files.readAllBytes(Paths.get(rutaArchivoLocal));
-                String contenidoLocal = new String(contenidoLocalBytes);
+                System.out.println("1. Comparar archivo");
+                System.out.println("2. Comparar repositorio");
+                System.out.println("3. Activar/desactivar detalle de línea/s");
+                System.out.println("0. Atrás");
+                option = str.nextInt();
 
-                if (Objects.equals(contenidoRemoto, contenidoLocal)) {
-                    System.out.println("El local y el remoto tienen exactamente el mismo timestamp y son iguales.");
+                if (option == 1) {
+                    //Concatena la ruta del archivo con la del repositorio.
+                    Path absolutePath = Paths.get(repositoryPath, filePathString);
+                    //Aplica la lógica del compare
+                    compare(absolutePath, lineDetail, false);
+                } else if (option == 2) {
+                    System.out.println("Introduce la ruta del directorio partiendo del repositorio e incluyendo la primera barra: ");
+                    System.out.println("Ejemplo: \\directorio, para subir todo el repositorio de manera recursiva, pulsar enter.");
+                    String directoryPathString = str.nextLine();
+
+                    //Concatena la ruta del archivo con la del repositorio.
+                    Path absolutePath = Paths.get(repositoryPath, directoryPathString);
+                    //Aplica la lógica del compare
+                    compare(absolutePath, lineDetail, true);
+                } else if (option == 3) {
+                    if (!lineDetail) {
+                        lineDetail = true;
+                        System.out.println("Detalle de línea activado.");
+                    } else {
+                        lineDetail = false;
+                        System.out.println("Detalle de línea desactivado.");
+                    }
+                } else if (option == 0) {
+                    // Salir del bucle
                 } else {
-                    System.out.println("El local y el remoto tienen exactamente el mismo timestamp, pero NO son iguales.");
+                    System.out.println("Opción introducida no válida.");
                 }
-            } catch (IOException e) {
-                System.out.println("Error al leer el archivo local.");
-                e.printStackTrace();
+            } catch (InputMismatchException ex) {
+                str.nextLine();
+                System.out.println("El valor debe ser numérico.");
             }
-        } else {
-            System.out.println("El local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido.");
         }
-    }
+    }*/
 }
