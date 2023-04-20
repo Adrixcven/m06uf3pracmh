@@ -18,6 +18,7 @@ public class Eliminar {
 
     public static void eliminarRepositorio(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd, String repositorio) {
         boolean repetir = true;
+        coleccio = bbdd.getCollection(repositorio);
         while (repetir == true) {
             try {
                 coleccio.drop();
