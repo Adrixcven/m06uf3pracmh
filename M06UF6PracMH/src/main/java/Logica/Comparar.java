@@ -49,14 +49,14 @@ public class Comparar {
         }
     }
 
-    public static void compararSinDetalles(String rep, String ruta, MongoDatabase bbdd) {
-        MongoCollection<Document> coleccio = bbdd.getCollection(rep);
-        Path path = Paths.get(ruta);
+    public static void compararSinDetalles(String nombreRepo, String rutaArchivo, MongoDatabase bbdd) {
+        MongoCollection<Document> coleccion = bbdd.getCollection(nombreRepo);
+        Path path = Paths.get(rutaArchivo);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
-            Document doc = coleccio.find(new Document("nombre", rep)).first();
+            Document doc = coleccion.find(new Document("nombre", nombreRepo)).first();
             if (doc == null) {
-                System.out.println("No se encontró el repositorio " + rep);
+                System.out.println("No se encontró el repositorio " + nombreRepo);
                 return;
             }
             byte[] contenidoRemoto = (byte[]) doc.get("contenido");
@@ -73,6 +73,8 @@ public class Comparar {
             }
             if (sonIguales) {
                 System.out.println("Los archivos son iguales");
+            } else {
+                System.out.println("Los archivos no son iguales");
             }
         } catch (IOException e) {
             System.out.println("No se pudo leer el archivo local");
