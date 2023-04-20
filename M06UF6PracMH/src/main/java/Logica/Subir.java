@@ -21,8 +21,22 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * Clase encargada de subir archivos a una base de datos MongoDB.
+ */
 public class Subir {
 
+    /**
+     *
+     * Método para subir un archivo a la base de datos, permitiendo actualizarlo
+     * si ya existe.
+     *
+     * @param in Scanner para entrada de datos por teclado.
+     * @param coleccio Colección de la base de datos en la que se desea guardar
+     * el archivo.
+     * @param ruta Ruta del archivo que se desea subir.
+     */
     public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File file = new File(ruta);
@@ -66,6 +80,18 @@ public class Subir {
         }
     }
 
+    /**
+     *
+     * Método para subir un archivo a la base de datos, sin permitir
+     * actualizaciones si ya existe.
+     *
+     * @param in Scanner para entrada de datos por teclado.
+     *
+     * @param coleccio Colección de la base de datos en la que se desea guardar
+     * el archivo.
+     *
+     * @param rutarchivo Archivo que se desea subir.
+     */
     public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, File rutarchivo) {
         try {
             BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
@@ -83,7 +109,7 @@ public class Subir {
             if (archivo != null) {
                 // Actualiza el archivo en la colección con el contenido de la nueva versión
                 Document update = new Document("$set", new Document("contenido", string)
-                            .append("fecha_modificacion", fechaLocal));
+                        .append("fecha_modificacion", fechaLocal));
                 coleccio.updateOne(query, update);
                 System.out.println("Archivo actualizado en la base de datos.");
             } else {
