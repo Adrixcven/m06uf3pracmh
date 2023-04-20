@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
 import org.bson.Document;
 
 /**
@@ -18,6 +19,7 @@ import org.bson.Document;
 public class Comparar {
 
     public static void compararConDetalles(String rep, String ruta, MongoCollection<Document> coleccio) {
+        Scanner in = new Scanner(System.in);
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
@@ -47,6 +49,7 @@ public class Comparar {
     }
 
     public static void compararSinDetalles(String rep, String ruta, MongoCollection<Document> coleccio) {
+        Scanner in = new Scanner(System.in);
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
