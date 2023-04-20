@@ -43,38 +43,42 @@ public class Subir {
             BufferedReader lector = new BufferedReader(new FileReader(file));
             StringBuilder sb = new StringBuilder();
             String linea;
-            while ((linea = lector.readLine()) != null) {
-                sb.append(linea);
-            }
-            lector.close();
-            String string = sb.toString();
-            //Guardamos la ultima fecha de modificación del archivo.
-            Date fechaLocal = new Date(file.lastModified());
-            //Busca en la coleccion el archivo.
-            Document query = new Document("nom", file.getName());
-            Document archivo = coleccio.find(query).first();
+            if (file.getName().endsWith(".java") || file.getName().endsWith(".txt")
+                    || file.getName().endsWith(".xml") || file.getName().endsWith(".html")) {
+                while ((linea = lector.readLine()) != null) {
+                    sb.append(linea);
+                }
+                lector.close();
+                String string = sb.toString();
+                //Guardamos la ultima fecha de modificación del archivo.
+                Date fechaLocal = new Date(file.lastModified());
+                //Busca en la coleccion el archivo.
+                Document query = new Document("nom", file.getName());
+                Document archivo = coleccio.find(query).first();
 
-            //Si el archivo existe en la colección
-            if (archivo != null) {
-                //coje la fecha del archivo remoto.
-                Date fechaRemota = archivo.getDate("fecha_modificacion");
-                //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
-                if (fechaLocal.after(fechaRemota)) {
-                    // Actualiza el archivo en la colección con el contenido de la nueva versión
-                    Document update = new Document("$set", new Document("contenido", string)
-                            .append("fecha_modificacion", fechaLocal));
-                    coleccio.updateOne(query, update);
-                    System.out.println("Archivo actualizado.");
+                //Si el archivo existe en la colección
+                if (archivo != null) {
+                    //coje la fecha del archivo remoto.
+                    Date fechaRemota = archivo.getDate("fecha_modificacion");
+                    //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
+                    if (fechaLocal.after(fechaRemota)) {
+                        // Actualiza el archivo en la colección con el contenido de la nueva versión
+                        Document update = new Document("$set", new Document("contenido", string)
+                                .append("fecha_modificacion", fechaLocal));
+                        coleccio.updateOne(query, update);
+                        System.out.println("Archivo actualizado.");
+                    } else {
+                        System.out.println("El archivo está actualizado.");
+                    }
                 } else {
-                    System.out.println("El archivo está actualizado.");
+                    // Inserta el archivo a la colección
+                    Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                    coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
+                    System.out.println("Archivo insertado en el Repositorio Remoto.");
                 }
             } else {
-                // Inserta el archivo a la colección
-                Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
-                coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
-                System.out.println("Archivo insertado en el Repositorio Remoto.");
+                System.out.println("El archivo no es de tipos .java, .txt, .xml o .html.");
             }
-
         } catch (Exception ex) {
 
         }
