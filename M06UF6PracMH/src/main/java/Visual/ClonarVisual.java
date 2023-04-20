@@ -33,7 +33,7 @@ public class ClonarVisual {
         while (cursor.hasNext()) {
             System.out.println(cursor.next().toJson());
         }
-        //esto es nuevo
+        //esto es nuevo otra vez
         cursor.close();
         
     }
