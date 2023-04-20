@@ -29,10 +29,10 @@ public class CompararVisual {
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                Comparar.compararConDetalles(rep, ruta, coleccio);
+                Comparar.compararConDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compararSinDetalles(rep, ruta, coleccio);
+                Comparar.compararSinDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else {
                 System.out.println("Error");
@@ -40,3 +40,4 @@ public class CompararVisual {
         }
     }
 }
+

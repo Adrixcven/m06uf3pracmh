@@ -5,6 +5,7 @@
 package Logica;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +19,8 @@ import org.bson.Document;
  */
 public class Comparar {
 
-    public static void compararConDetalles(String rep, String ruta, MongoCollection<Document> coleccio) {
+    public static void compararConDetalles(String rep, String ruta, MongoDatabase bbdd) {
+        MongoCollection<Document> coleccio = bbdd.getCollection(rep);
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
@@ -47,7 +49,8 @@ public class Comparar {
         }
     }
 
-    public static void compararSinDetalles(String rep, String ruta, MongoCollection<Document> coleccio) {
+    public static void compararSinDetalles(String rep, String ruta, MongoDatabase bbdd) {
+        MongoCollection<Document> coleccio = bbdd.getCollection(rep);
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
@@ -76,3 +79,4 @@ public class Comparar {
         }
     }
 }
+
