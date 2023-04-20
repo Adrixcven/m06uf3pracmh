@@ -21,15 +21,15 @@ public class Comparar {
 
     public static void compararConDetalles(String rep, String ruta, MongoDatabase bbdd) {
         MongoCollection<Document> coleccio = bbdd.getCollection(rep);
+        Document doc = coleccio.find(new Document("nombre", rep)).first();
+        if (doc == null) {
+            System.out.println("No se encontró el repositorio remoto");
+            return;
+        }
+        byte[] contenidoRemoto = (byte[]) doc.get("contenido");
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
-            Document doc = coleccio.find(new Document("repositorio", rep)).first();
-            if (doc == null) {
-                System.out.println("No se encontró el repositorio remoto");
-                return;
-            }
-            byte[] contenidoRemoto = (byte[]) doc.get("contenido");
             if (contenidoLocal.length != contenidoRemoto.length) {
                 System.out.println("Los archivos no tienen el mismo tamaño");
                 return;
@@ -54,9 +54,9 @@ public class Comparar {
         Path path = Paths.get(ruta);
         try {
             byte[] contenidoLocal = Files.readAllBytes(path);
-            Document doc = coleccio.find(new Document("repositorio", rep)).first();
+            Document doc = coleccio.find(new Document("nombre", rep)).first();
             if (doc == null) {
-                System.out.println("No se encontró el repositorio remoto");
+                System.out.println("No se encontró el repositorio " + rep);
                 return;
             }
             byte[] contenidoRemoto = (byte[]) doc.get("contenido");
@@ -79,4 +79,3 @@ public class Comparar {
         }
     }
 }
-
