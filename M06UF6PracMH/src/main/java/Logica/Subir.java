@@ -101,29 +101,34 @@ public class Subir {
             BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
             StringBuilder sb = new StringBuilder();
             String linea;
-            while ((linea = lector.readLine()) != null) {
-                sb.append(linea);
-            }
-            lector.close();
-            String string = sb.toString();
-            Date fechaLocal = new Date(rutarchivo.lastModified());
+            if (rutarchivo.getName().endsWith(".java") || rutarchivo.getName().endsWith(".txt")
+                    || rutarchivo.getName().endsWith(".xml") || rutarchivo.getName().endsWith(".html")) {
+                while ((linea = lector.readLine()) != null) {
+                    sb.append(linea);
+                }
+                lector.close();
+                String string = sb.toString();
+                Date fechaLocal = new Date(rutarchivo.lastModified());
 
-            Document query = new Document("nom", rutarchivo.getName());
-            Document archivo = coleccio.find(query).first();
-            if (archivo != null) {
-                // Actualiza el archivo en la colección con el contenido de la nueva versión
-                Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
-                coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
-                System.out.println("Archivo actualizado en la base de datos.");
+                Document query = new Document("nom", rutarchivo.getName());
+                Document archivo = coleccio.find(query).first();
+                if (archivo != null) {
+                    // Actualiza el archivo en la colección con el contenido de la nueva versión
+                    Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                    coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
+                    System.out.println("Archivo actualizado en la base de datos.");
+                } else {
+                    // Inserta el archivo a la colección
+                    Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                    coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
+                    System.out.println("Archivo insertado en la base de datos.");
+                }
             } else {
-                // Inserta el archivo a la colección
-                Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
-                coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
-                System.out.println("Archivo insertado en la base de datos.");
+                System.out.println("El archivo no es de tipos .java, .txt, .xml o .html.");
             }
 
         } catch (IOException ex) {
-        
+
         }
     }
 
@@ -135,9 +140,9 @@ public class Subir {
                 if (archivo.isFile()) {
                     // hacer algo con el archivo
                     SubirArchivoConForce(in, coleccio, ruta);
+                }
+            }
         }
-    }
-}
     }
 
     public static void esDirectorioNoForce(Scanner in, MongoCollection<Document> coleccio, String rutarchivo) {
