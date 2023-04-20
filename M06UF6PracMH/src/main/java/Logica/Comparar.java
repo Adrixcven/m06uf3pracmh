@@ -6,12 +6,15 @@ package Logica;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
 import org.bson.Document;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  *
@@ -49,18 +52,43 @@ public class Comparar {
         }
     }
 
-    public static void compararSinDetalles(String nombreRepo, String rutaArchivo, MongoDatabase db) {
-        MongoCollection<Document> coleccion = db.getCollection(nombreRepo);
+    /*public static void compararSinDetalles(MongoDatabase db, String nombreArchivoRemoto, String rutaArchivoLocal) {
 
-        Document query = new Document();
-        query.append("ruta", rutaArchivo);
+        File archivoLocal = new File(rutaArchivoLocal);
 
-        Document resultado = coleccion.find(query).first();
-
-        if (resultado == null) {
-            System.out.println("El archivo no se encuentra en el repositorio");
-        } else {
-            System.out.println("El archivo " + rutaArchivo + " está presente en el repositorio " + nombreRepo);
+        // Si el archivo local no existe, informamos al usuario y salimos de la función
+        if (!archivoLocal.exists()) {
+            System.out.println("El archivo local " + rutaArchivoLocal + " no existe.");
+            return;
         }
-    }
+
+        MongoCollection<Document> coleccion = db.getCollection("archivos");
+        Document archivoRemoto = coleccion.find(new Document("nombre", nombreArchivoRemoto)).first();
+
+        // Si el archivo remoto no existe, informamos al usuario y salimos de la función
+        if (archivoRemoto == null) {
+            System.out.println("El archivo remoto " + nombreArchivoRemoto + " no existe.");
+            return;
+        }
+
+        Date timestampLocal = new Date(archivoLocal.lastModified());
+        Date timestampRemoto = archivoRemoto.getDate("timestamp");
+
+        // Si los timestamps son iguales, comparamos los contenidos
+        if (Objects.equals(timestampLocal, timestampRemoto)) {
+            try ( FileInputStream fisLocal = new FileInputStream(archivoLocal)) {
+                byte[] contenidoLocal = fisLocal.readAllBytes();
+                byte[] contenidoRemoto = archivoRemoto.getBinary("contenido").getData();
+                if (Objects.equals(contenidoLocal, contenidoRemoto)) {
+                    System.out.println("El archivo local " + rutaArchivoLocal + " y el remoto " + nombreArchivoRemoto + " son iguales.");
+                } else {
+                    System.out.println("El archivo local " + rutaArchivoLocal + " y el remoto " + nombreArchivoRemoto + " son distintos.");
+                }
+            } catch (IOException e) {
+                System.out.println("Error al leer el archivo local: " + e.getMessage());
+            }
+        } else {
+            System.out.println("El archivo local " + rutaArchivoLocal + " y el remoto " + nombreArchivoRemoto + " tienen timestamps distintos.");
+        }
+    }*/
 }

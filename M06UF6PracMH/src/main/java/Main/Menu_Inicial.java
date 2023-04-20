@@ -2,8 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Project/Maven2/JavaApp/src/main/java/${packagePath}/${mainClassName}.java to edit this template
  */
-package Visual;
+package Main;
 
+import Visual.BajarVisual;
+import Visual.ClonarVisual;
+import Visual.CompararVisual;
+import Visual.CrearVisual;
+import Visual.EliminarVisual;
+import Visual.SubirVisual;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoClients;

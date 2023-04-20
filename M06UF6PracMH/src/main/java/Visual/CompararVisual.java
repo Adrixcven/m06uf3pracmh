@@ -32,7 +32,7 @@ public class CompararVisual {
                 Comparar.compararConDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compararSinDetalles(rep, ruta, bbdd);
+                //Comparar.compararSinDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else {
                 System.out.println("Error");
