@@ -16,7 +16,8 @@ import org.bson.Document;
  */
 public class CompararVisual {
 
-    public static void compararRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        Scanner in = new Scanner(System.in);
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime la ruta del archivo que quieres comparar");
@@ -28,10 +29,10 @@ public class CompararVisual {
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                Comparar.compararConDetalles(rep, ruta, coleccio);
+                Comparar.compararConDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compararSinDetalles(rep, ruta, coleccio);
+                //Comparar.compararSinDetalles(rep, ruta, bbdd);
                 continuar = false;
             } else {
                 System.out.println("Error");
@@ -39,3 +40,4 @@ public class CompararVisual {
         }
     }
 }
+

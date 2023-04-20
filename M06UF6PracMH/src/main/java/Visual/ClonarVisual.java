@@ -19,7 +19,8 @@ import org.bson.Document;
  */
 public class ClonarVisual {
 
-    public static void compararRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        Scanner in = new Scanner(System.in);
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime el timestamp que quieres usar. Ej: 2023-04-19T12:00:00Z");
