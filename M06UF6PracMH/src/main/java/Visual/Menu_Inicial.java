@@ -6,10 +6,13 @@ package Visual;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.io.File;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.bson.Document;
 
@@ -18,12 +21,14 @@ import org.bson.Document;
  * @author Adrix
  */
 public class Menu_Inicial {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Menu_Inicial.class); 
+
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Menu_Inicial.class);
     private static com.mongodb.client.MongoClient mongoClient;
     private static MongoDatabase bbdd;
     private static MongoCollection<Document> coleccio;
+
     public static void main(String[] args) {
-        
+
         Scanner in = new Scanner(System.in);
         System.out.println("Bienvenido a Los Repositorios.");
         System.out.println("Quieres crear un Repositorio Local?");
@@ -32,14 +37,20 @@ public class Menu_Inicial {
         var opcion = in.nextInt();
         if (opcion == 1) {
             System.out.println("Se creara un Repositorio Local.");
+            in.nextLine();
             System.out.println("Donde quieres que se genere el directorio?");
             var directorio = in.nextLine();
-            //metodo de generar directorio
+            // Creamos un directorio mediante un objeto File
+            File dir = new File(directorio);
+            // en caso de que no exista ningun directorio con ese nombre, lo creamos
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
             System.out.println("Se ha generado el directorio para el repositorio Local");
         }
         //Definir repositorio
         Boolean continuar = true;
-        try{
+        try {
             ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
             mongoClient = MongoClients.create(connectionString);
             bbdd = mongoClient.getDatabase("GETBD");
