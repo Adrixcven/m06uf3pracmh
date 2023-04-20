@@ -49,35 +49,18 @@ public class Comparar {
         }
     }
 
-    public static void compararSinDetalles(String nombreRepo, String rutaArchivo, MongoDatabase bbdd) {
-        MongoCollection<Document> coleccion = bbdd.getCollection(nombreRepo);
-        Path path = Paths.get(rutaArchivo);
-        try {
-            byte[] contenidoLocal = Files.readAllBytes(path);
-            Document doc = coleccion.find(new Document("nombre", nombreRepo)).first();
-            if (doc == null) {
-                System.out.println("No se encontró el repositorio " + nombreRepo);
-                return;
-            }
-            byte[] contenidoRemoto = (byte[]) doc.get("contenido");
-            if (contenidoLocal.length != contenidoRemoto.length) {
-                System.out.println("Los archivos no tienen el mismo tamaño");
-                return;
-            }
-            boolean sonIguales = true;
-            for (int i = 0; i < contenidoLocal.length; i++) {
-                if (contenidoLocal[i] != contenidoRemoto[i]) {
-                    sonIguales = false;
-                    break;
-                }
-            }
-            if (sonIguales) {
-                System.out.println("Los archivos son iguales");
-            } else {
-                System.out.println("Los archivos no son iguales");
-            }
-        } catch (IOException e) {
-            System.out.println("No se pudo leer el archivo local");
+    public static void compararSinDetalles(String nombreRepo, String rutaArchivo, MongoDatabase db) {
+        MongoCollection<Document> coleccion = db.getCollection(nombreRepo);
+
+        Document query = new Document();
+        query.append("ruta", rutaArchivo);
+
+        Document resultado = coleccion.find(query).first();
+
+        if (resultado == null) {
+            System.out.println("El archivo no se encuentra en el repositorio");
+        } else {
+            System.out.println("El archivo " + rutaArchivo + " está presente en el repositorio " + nombreRepo);
         }
     }
 }
