@@ -72,7 +72,8 @@ public class Subir {
             } else {
                 // Inserta el archivo a la colección
                 Document document = new Document("nombre", rutarchivo.getName())
-                        .append("contenido", data);
+                        .append("contenido", data)
+                        .append("fecha_modificacion", fechaLocal);
                 coleccio.insertOne(document);
                 System.out.println("Archivo insertado en la base de datos.");
             }
