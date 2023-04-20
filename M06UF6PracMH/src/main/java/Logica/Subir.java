@@ -59,7 +59,7 @@ public class Subir {
                 //Si el archivo existe en la colección
                 if (archivo != null) {
                     //coje la fecha del archivo remoto.
-                    Date fechaRemota = archivo.getDate("fecha_modificacion");
+                    Date fechaRemota = archivo.getDate("tiempo");
                     //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
                     if (fechaLocal.after(fechaRemota)) {
                         // Actualiza el archivo en la colección con el contenido de la nueva versión

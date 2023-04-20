@@ -90,11 +90,9 @@ public class SubirVisual {
             if (force == 1) {
                 Subir.esDirectorio(in, coleccio, ruta);
                 continuar = false;
-                System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else if (force == 0) {
                 Subir.esDirectorioNoForce(in, coleccio, ruta);
                 continuar = false;
-                System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else {
                 System.out.println("Error");
             }
