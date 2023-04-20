@@ -75,7 +75,7 @@ public class Menu_Inicial {
                     break;
                 case 5:
                     System.out.println("Has elegido Comparar Archivos entre los Repositorio Remotos y Local");
-                    CompararVisual.compararRemot(in, coleccio, bbdd);
+                    CompararVisual.compararRemot(coleccio, bbdd);
                     break;
                 case 6:
                     System.out.println("Has elegido Clonar Repositorio Remoto");

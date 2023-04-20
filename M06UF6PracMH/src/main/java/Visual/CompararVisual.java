@@ -16,7 +16,8 @@ import org.bson.Document;
  */
 public class CompararVisual {
 
-    public static void compararRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        Scanner in = new Scanner(System.in);
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime la ruta del archivo que quieres comparar");
