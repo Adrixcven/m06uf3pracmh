@@ -85,7 +85,7 @@ public class Menu_Inicial {
                     break;
                 case 6:
                     System.out.println("Has elegido Clonar Repositorio Remoto");
-                    ClonarVisual.compararRemot(in, coleccio, bbdd);
+                    ClonarVisual.compararRemot(bbdd);
                     break;
                 case 7:
                     mongoClient.close();

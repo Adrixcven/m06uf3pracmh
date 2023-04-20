@@ -50,7 +50,7 @@ public class SubirVisual {
         while (continuar) {
             System.out.println("Dime el archivo que quieres subir");
             ruta = in.nextLine();
-            ruta = rep + "/" + ruta;
+            ruta = rep + "\\" + ruta;
             rutarchivo = new File(ruta);
             //Miramos si la ruta del archivo existe y, si no existe, vuelve a preguntar.
             if (rutarchivo.exists()) {
