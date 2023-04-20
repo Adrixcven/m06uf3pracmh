@@ -15,7 +15,8 @@ import org.bson.Document;
  * @author Adrix
  */
 public class EliminarVisual {
-    public static void eliminarRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void eliminarRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        Scanner in = new Scanner(System.in);
         System.out.println("Dame la ruta absoluta del repositorio que quieres eliminar.");
         System.out.println("Ej. c:\\home\\user\\getrepo2");
         String repositorio = in.nextLine();

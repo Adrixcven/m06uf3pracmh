@@ -59,15 +59,15 @@ public class Menu_Inicial {
             switch (opcion) {
                 case 1:
                     System.out.println("Has elegido Crear el Repositorio Remoto.");
-                    CrearVisual.crearRemot(in, coleccio, bbdd);
+                    CrearVisual.crearRemot(coleccio, bbdd);
                     break;
                 case 2:
                     System.out.println("Has elegido Eliminar Repositorio Remoto.");
-                    EliminarVisual.eliminarRemot(in, coleccio, bbdd);
+                    EliminarVisual.eliminarRemot(coleccio, bbdd);
                     break;
                 case 3:
                     System.out.println("Has elegido Subir Archivo a Repositorio Remoto");
-                    SubirVisual.subirRemot(in, coleccio, bbdd);
+                    SubirVisual.subirRemot(coleccio, bbdd);
                     break;
                 case 4:
                     System.out.println("Has elegido Bajar Archivo de Repositorio Remoto");

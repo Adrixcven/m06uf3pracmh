@@ -17,7 +17,8 @@ import org.bson.Document;
  */
 public class SubirVisual {
 
-    public static void subirRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void subirRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+        Scanner in = new Scanner(System.in);
         Boolean continuar = true;
         int count = 0;
         String rep = "";
@@ -28,7 +29,9 @@ public class SubirVisual {
             System.out.println("Dame la ruta del repositorio remoto que quieres usar");
             rep = in.nextLine();
             //cambiamos el nombre del identificador para que sea.
-            String repositorio = rep.replace("/", "_").substring(1);
+            String repConvertida = rep.replace("\\", "/");
+            repConvertida = repConvertida.replaceAll("^[a-zA-Z]:", "");
+            String repositorio = repConvertida.replace("/", "_").substring(1);
             //Miramos si existe la colección y, si no existe, dice que no existe y vuelve a preguntarlo
             for (String name : bbdd.listCollectionNames()) {
                 if (name.equals(repositorio)) {
@@ -50,9 +53,9 @@ public class SubirVisual {
             ruta = rep + "/" + ruta;
             rutarchivo = new File(ruta);
             //Miramos si la ruta del archivo existe y, si no existe, vuelve a preguntar.
-            if(rutarchivo.exists()){
+            if (rutarchivo.exists()) {
                 continuar = false;
-            }else{
+            } else {
                 System.out.println("El archivo no existe en la ruta del repositorio.");
                 System.out.println("Ten en cuenta que tiene que estar en " + rep);
             }
