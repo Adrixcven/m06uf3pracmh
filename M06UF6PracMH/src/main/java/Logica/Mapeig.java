@@ -13,23 +13,21 @@ import org.bson.Document;
  * @author Adrix
  */
 public class Mapeig {
-    public static Document setArchivoToDocument(Archivodata e)
-    {
+    public static Document setArchivoToDocument(Archivodata e){
+        
         Document ret = new Document("nom", e.getNom())
                 .append("tiempo", e.getTiempo())
-                .append("contenido", e.getContenido())
-                .append("uid",e.getUid());
+                .append("contenido", e.getContenido());
         
         return ret;
     }
-    public static Archivodata getAddrFromDocument(Document d)
+    public static Archivodata getArchivoFromDocument(Document d)
     {
          Archivodata ret = new Archivodata();
          
-         ret.setUid(d.getString("iud"));
          ret.setNom(d.getString("nom"));
          ret.setTiempo(d.getDate("tiempo"));
-         ret.setContenido((StringBuilder) d.get("contenido"));
+         ret.setContenido(d.getString("contenido"));
          
          return ret;
         

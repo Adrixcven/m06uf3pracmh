@@ -7,7 +7,11 @@ package Logica;
 import com.mongodb.MongoCommandException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import entidades.Archivodata;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.Scanner;
@@ -22,13 +26,20 @@ public class Subir {
     public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File file = new File(ruta);
-            byte[] data = Files.readAllBytes(file.toPath());
+            BufferedReader lector = new BufferedReader(new FileReader(file));
+            StringBuilder sb = new StringBuilder();
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                sb.append(linea);
+            }
+            lector.close();
+            String string = sb.toString();
             //Guardamos la ultima fecha de modificación del archivo.
             Date fechaLocal = new Date(file.lastModified());
             //Busca en la coleccion el archivo.
-            Document query = new Document("nombre", file.getName());
+            Document query = new Document("nom", file.getName());
             Document archivo = coleccio.find(query).first();
-            
+
             //Si el archivo existe en la colección
             if (archivo != null) {
                 //coje la fecha del archivo remoto.
@@ -36,7 +47,7 @@ public class Subir {
                 //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
                 if (fechaLocal.after(fechaRemota)) {
                     // Actualiza el archivo en la colección con el contenido de la nueva versión
-                    Document update = new Document("$set", new Document("contenido", data)
+                    Document update = new Document("$set", new Document("contenido", string)
                             .append("fecha_modificacion", fechaLocal));
                     coleccio.updateOne(query, update);
                     System.out.println("Archivo actualizado.");
@@ -45,10 +56,8 @@ public class Subir {
                 }
             } else {
                 // Inserta el archivo a la colección
-                Document document = new Document("nombre", file.getName())
-                        .append("contenido", data)
-                        .append("fecha_modificacion", fechaLocal);
-                coleccio.insertOne(document);
+                Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
                 System.out.println("Archivo insertado en el Repositorio Remoto.");
             }
 
@@ -59,26 +68,32 @@ public class Subir {
 
     public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, File rutarchivo) {
         try {
-            byte[] data = Files.readAllBytes(rutarchivo.toPath());
+            BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
+            StringBuilder sb = new StringBuilder();
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                sb.append(linea);
+            }
+            lector.close();
+            String string = sb.toString();
             Date fechaLocal = new Date(rutarchivo.lastModified());
 
-            Document query = new Document("nombre", rutarchivo.getName());
+            Document query = new Document("nom", rutarchivo.getName());
             Document archivo = coleccio.find(query).first();
             if (archivo != null) {
                 // Actualiza el archivo en la colección con el contenido de la nueva versión
-                Document update = new Document("$set", new Document("contenido", data));
+                Document update = new Document("$set", new Document("contenido", string)
+                            .append("fecha_modificacion", fechaLocal));
                 coleccio.updateOne(query, update);
                 System.out.println("Archivo actualizado en la base de datos.");
             } else {
                 // Inserta el archivo a la colección
-                Document document = new Document("nombre", rutarchivo.getName())
-                        .append("contenido", data)
-                        .append("fecha_modificacion", fechaLocal);
-                coleccio.insertOne(document);
+                Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
                 System.out.println("Archivo insertado en la base de datos.");
             }
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
 
         }
     }

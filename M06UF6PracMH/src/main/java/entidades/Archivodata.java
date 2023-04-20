@@ -12,29 +12,21 @@ import java.util.Date;
  */
 public class Archivodata {
     // identificador aleatori únic
-    private String uid;
+
     
     private String nom;
     private Date tiempo;
-    private StringBuilder contenido;
+    private String contenido;
 
     public Archivodata() {
     }
 
-    public Archivodata(String uid, String nom, Date tiempo, StringBuilder contenido) {
-        this.uid = uid;
+    public Archivodata(String nom, Date tiempo, String contenido) {
         this.nom = nom;
         this.tiempo = tiempo;
         this.contenido = contenido;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 
     public String getNom() {
         return nom;
@@ -52,19 +44,18 @@ public class Archivodata {
         this.tiempo = tiempo;
     }
 
-    public StringBuilder getContenido() {
+    public String getContenido() {
         return contenido;
     }
 
-    public void setContenido(StringBuilder contenido) {
+    public void setContenido(String contenido) {
         this.contenido = contenido;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Archivo{uid=").append(uid);
-        sb.append(", Nom=").append(nom);
+        sb.append("Archivo{Nom=").append(nom);
         sb.append(", Tiempo de subida=").append(tiempo);
         sb.append(", Contenido=").append(contenido);
         sb.append('}');
