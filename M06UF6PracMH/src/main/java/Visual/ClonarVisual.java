@@ -39,12 +39,14 @@ public class ClonarVisual {
         // 1. Crear directorio con el nombre de la colección
         Path directorio = Paths.get(System.getProperty("user.home"), coleccion);
 
-        while (true) {
+        boolean creado = false;
+        while (creado) {
             try {
                 Files.createDirectory(directorio);
-                break;
+                creado = true;
             } catch (FileAlreadyExistsException e) {
                 System.out.println("El directorio ya existe.");
+                creado = true; // Salimos del bucle ya que el directorio ya existe
             } catch (IOException e) {
                 System.out.println("Se ha producido un error al crear el directorio.");
                 return;
