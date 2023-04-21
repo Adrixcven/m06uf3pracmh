@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import org.bson.Document;
@@ -50,24 +51,34 @@ public class ClonarVisual {
             }
         }
 
-        // 2. Seleccionar documentos por fecha
-        System.out.print("Introduce la fecha de inicio (yyyy-MM-dd HH:mm:ss): ");
-        LocalDateTime fechaInicio = LocalDateTime.parse(sc.nextLine());
-
-        System.out.print("Introduce la fecha de fin (yyyy-MM-dd HH:mm:ss): ");
-        LocalDateTime fechaFin = LocalDateTime.parse(sc.nextLine());
+        //2. Seleccionar documentos por fecha
+        LocalDateTime fechaModificacion = null;
+        while (true) {
+            System.out.print("Introduce la fecha de modificación (yyyy-MM-dd HH:mm:ss): ");
+            String fechaModificacionStr = sc.nextLine();
+            if (fechaModificacionStr.isEmpty()) {
+                System.out.println("Debes introducir una fecha.");
+                continue;
+            }
+            try {
+                fechaModificacion = LocalDateTime.parse(fechaModificacionStr);
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("Fecha introducida incorrecta. Debe estar en formato yyyy-MM-dd HH:mm:ss");
+            }
+        }
 
         MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
         MongoCursor<Document> cursor = coleccionMongo.find().iterator();
 
         while (cursor.hasNext()) {
             Document doc = cursor.next();
-            LocalDateTime fechaDoc = LocalDateTime.parse(doc.getString("timestamp"));
+            LocalDateTime fechaDoc = LocalDateTime.parse(doc.getString("modificacion"));
 
-            // Comprobar si el documento está dentro del rango de fechas
-            if (fechaDoc.isAfter(fechaInicio) && fechaDoc.isBefore(fechaFin)) {
+            //Comprobar si el documento está dentro del rango de fechas
+            if (fechaDoc.isBefore(fechaModificacion) || fechaDoc.isEqual(fechaModificacion)) {
 
-                // 3. Crear archivo y escribir contenido
+                //3. Crear archivo y escribir contenido
                 String nombreArchivo = doc.getString("nombre");
                 Path archivo = directorio.resolve(nombreArchivo);
 

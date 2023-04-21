@@ -4,10 +4,15 @@
  */
 package Logica;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
 /**
  *
  * @author Adrix
  */
 public class Clonar {
-    
+
+
 }
