@@ -16,7 +16,7 @@ public class Mapeig {
     public static Document setArchivoToDocument(Archivodata e){
         
         Document ret = new Document("nom", e.getNom())
-                .append("tiempo", e.getTiempo())
+                .append("Fecha de modificación", e.getTiempo())
                 .append("contenido", e.getContenido());
         
         return ret;
@@ -26,7 +26,7 @@ public class Mapeig {
          Archivodata ret = new Archivodata();
          
          ret.setNom(d.getString("nom"));
-         ret.setTiempo(d.getDate("tiempo"));
+         ret.setTiempo(d.getDate("Fecha de modificación"));
          ret.setContenido(d.getString("contenido"));
          
          return ret;
@@ -35,7 +35,7 @@ public class Mapeig {
     public static Document updateDocument(Archivodata e) {
 
         
-        Document update = new Document("$set", new Document("tiempo", e.getTiempo())
+        Document update = new Document("$set", new Document("Fecha de modificación", e.getTiempo())
                 .append("contenido", e.getContenido()));
 
         return update;

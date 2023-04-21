@@ -90,8 +90,8 @@ public class Menu_Inicial {
                     System.out.println("Has elegido Clonar Repositorio Remoto");
                     System.out.println("Dame el identificador del repositorio remoto que quieres usar");
                     var rep = in.nextLine();
+                    rep = in.nextLine();
                     ClonarVisual.clonar(rep, bbdd);
-
                     break;
                 case 7:
                     mongoClient.close();
