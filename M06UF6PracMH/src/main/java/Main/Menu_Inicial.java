@@ -90,12 +90,8 @@ public class Menu_Inicial {
                     System.out.println("Has elegido Clonar Repositorio Remoto");
                     System.out.println("Dame el identificador del repositorio remoto que quieres usar");
                     var rep = in.nextLine();
-                    System.out.println("Dime el timestamp que quieres usar. Ej: 2023-04-19 12:00:00Z");
-                    var timestamp = in.nextLine();
-                    //provisional
-                    if ( ClonarVisual.repositoryExists(timestamp, bbdd, coleccio)){
-                        ClonarVisual.compararRemot(timestamp, rep ,bbdd);
-                    }
+                    ClonarVisual.clonar(rep, bbdd);
+
                     break;
                 case 7:
                     mongoClient.close();
