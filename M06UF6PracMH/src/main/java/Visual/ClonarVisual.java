@@ -79,6 +79,7 @@ public class ClonarVisual {
         MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
         MongoCursor<Document> cursor = coleccionMongo.find().iterator();
 
+        boolean creadoCorrectamente = false;
         while (cursor.hasNext()) {
             Document doc = cursor.next();
             LocalDateTime fechaDoc = doc.getDate("Fecha de modificación").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -93,10 +94,21 @@ public class ClonarVisual {
                 try {
                     Files.createFile(archivo);
                     Files.writeString(archivo, doc.getString("contenido"));
-                    System.out.println("Se ha clonado correctamente el directorio.");
+                    creadoCorrectamente = true;
                 } catch (IOException e) {
-                    System.out.println("Error al crear el archivo " + nombreArchivo);
+                    System.out.println("Error al clonar el repositorio ");
+                    creadoCorrectamente = false;
+                    break;
                 }
+            }
+        }
+        if (creadoCorrectamente == true) {
+            System.out.println("Se ha clonado correctamente el directorio.");
+        } else {
+            System.out.println("Ha habido un problema clonando el repositorio.");
+            try{
+            Files.delete(directorio);
+            } catch (IOException e){
             }
         }
     }
