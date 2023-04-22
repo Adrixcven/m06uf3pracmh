@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class ClonarVisual {
 
         while (cursor.hasNext()) {
             Document doc = cursor.next();
-            LocalDateTime fechaDoc = LocalDateTime.parse(doc.getString("modificacion"));
+            LocalDateTime fechaDoc = doc.getDate("fecha de modificación").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
             //Comprobar si el documento está dentro del rango de fechas
             if (fechaDoc.isBefore(fechaModificacion) || fechaDoc.isEqual(fechaModificacion)) {
