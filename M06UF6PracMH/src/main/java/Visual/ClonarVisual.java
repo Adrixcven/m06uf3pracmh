@@ -89,9 +89,9 @@ public class ClonarVisual {
 
                 //3. Crear archivo y escribir contenido
                 String nombreArchivo = doc.getString("nom");
-                Path archivo = directorio.resolve(nombreArchivo);
 
                 try {
+                    Path archivo = directorio.resolve(nombreArchivo);
                     Files.createFile(archivo);
                     Files.writeString(archivo, doc.getString("contenido"));
                     creadoCorrectamente = true;
@@ -99,6 +99,9 @@ public class ClonarVisual {
                     System.out.println("Error al clonar el repositorio ");
                     creadoCorrectamente = false;
                     break;
+                } catch (NullPointerException e) {
+                    System.out.println("Error al clonar el repositorio ");
+                    creadoCorrectamente = false;
                 }
             }
         }
@@ -106,9 +109,9 @@ public class ClonarVisual {
             System.out.println("Se ha clonado correctamente el directorio.");
         } else {
             System.out.println("Ha habido un problema clonando el repositorio.");
-            try{
-            Files.delete(directorio);
-            } catch (IOException e){
+            try {
+                Files.delete(directorio);
+            } catch (IOException e) {
             }
         }
     }
