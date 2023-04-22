@@ -4,12 +4,9 @@
  */
 package Visual;
 
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -42,9 +39,10 @@ public class ClonarVisual {
         Path directorio = Paths.get(System.getProperty("user.home"), coleccion);
 
         boolean creado = false;
-        while (creado) {
+        while (!creado) {
             try {
                 Files.createDirectory(directorio);
+                clonado(coleccion, db, directorio);
                 creado = true;
             } catch (FileAlreadyExistsException e) {
                 System.out.println("El directorio ya existe.");
@@ -55,7 +53,12 @@ public class ClonarVisual {
             }
         }
 
+    }
+
+    public static void clonado(String coleccion, MongoDatabase db, Path directorio) {
+
         //2. Seleccionar documentos por fecha
+        Scanner sc = new Scanner(System.in);
         LocalDateTime fechaModificacion = null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         while (true) {
@@ -78,19 +81,19 @@ public class ClonarVisual {
 
         while (cursor.hasNext()) {
             Document doc = cursor.next();
-            LocalDateTime fechaDoc = doc.getDate("fecha de modificación").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime fechaDoc = doc.getDate("Fecha de modificación").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
             //Comprobar si el documento está dentro del rango de fechas
             if (fechaDoc.isBefore(fechaModificacion) || fechaDoc.isEqual(fechaModificacion)) {
 
                 //3. Crear archivo y escribir contenido
-                String nombreArchivo = doc.getString("nombre");
+                String nombreArchivo = doc.getString("nom");
                 Path archivo = directorio.resolve(nombreArchivo);
 
                 try {
                     Files.createFile(archivo);
                     Files.writeString(archivo, doc.getString("contenido"));
-                    System.out.println("Archivo " + nombreArchivo + " creado correctamente.");
+                    System.out.println("Se ha clonado correctamente el directorio.");
                 } catch (IOException e) {
                     System.out.println("Error al crear el archivo " + nombreArchivo);
                 }
