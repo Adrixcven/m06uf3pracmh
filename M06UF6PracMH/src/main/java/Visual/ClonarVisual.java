@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -55,6 +56,7 @@ public class ClonarVisual {
 
         //2. Seleccionar documentos por fecha
         LocalDateTime fechaModificacion = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         while (true) {
             System.out.print("Introduce la fecha de modificación (yyyy-MM-dd HH:mm:ss): ");
             String fechaModificacionStr = sc.nextLine();
@@ -63,7 +65,7 @@ public class ClonarVisual {
                 continue;
             }
             try {
-                fechaModificacion = LocalDateTime.parse(fechaModificacionStr);
+                fechaModificacion = LocalDateTime.parse(fechaModificacionStr, formatter);
                 break;
             } catch (DateTimeParseException e) {
                 System.out.println("Fecha introducida incorrecta. Debe estar en formato yyyy-MM-dd HH:mm:ss");
