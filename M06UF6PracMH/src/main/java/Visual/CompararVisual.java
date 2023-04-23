@@ -19,10 +19,12 @@ public class CompararVisual {
 
     public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) throws IOException {
         Scanner in = new Scanner(System.in);
-        System.out.println("Dame la ruta del archivo remoto que quieres usar");
+        System.out.println("Dame la id del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime la ruta del archivo Local que quieres comparar");
         var nameRep = in.nextLine();
+        System.out.println("Dime el nombre del archivo");
+        var nombre = in.nextLine();
         var continuar = true;
         while (continuar) {
             System.out.println("Quieres hacer que tenga detalles?");
@@ -33,7 +35,15 @@ public class CompararVisual {
                 //Comparar.compararConDetalles(rep, rutaLocal, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compare(rep, nameRep, false, coleccio);
+                coleccio = bbdd.getCollection(rep);
+                String ruta = "";
+                if (nombre != "") {
+                    ruta = nameRep + "\\" + nombre;
+                } else {
+                    ruta = nameRep;
+                }
+
+                Comparar.esDirectorio(rep, ruta, false, coleccio);
                 continuar = false;
             } else {
                 System.out.println("Error");
@@ -41,4 +51,3 @@ public class CompararVisual {
         }
     }
 }
-

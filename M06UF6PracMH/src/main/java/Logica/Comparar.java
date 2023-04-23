@@ -6,15 +6,18 @@ package Logica;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import entidades.Archivodata;
+import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.bson.Document;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.SimpleFileVisitor;
@@ -31,127 +34,80 @@ import java.util.Scanner;
  */
 public class Comparar {
 
-    /*public static void compararConDetalles(Path absolutePath, boolean showDetail, boolean recursive) {
-
+    public static void compare(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) throws IOException {
         try {
-
-            if (!absolutePath.toFile().exists()) {
-                System.out.println("El fichero o directorio local no existe");
-                return;
-            }
-
-            if (absolutePath.toFile().isDirectory()) {
-                if (!recursive) {
-                    System.out.println("Es un directorio, por favor indique el fichero a comparar o use la opción recursiva");
-                    return;
-                }
-
-                Files.walkFileTree(absolutePath, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        compararConDetalles(file, showDetail, true);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-            } else {
-
-                Archivodata localFichero = filePathToFichero(absolutePath);
-                Document remoteDocument = dataLayer.findDocumentByPath(absolutePath.toString());
-
-                if (remoteDocument == null) {
-                    System.out.println("El fichero " + absolutePath.getFileName().toString() + " remoto no existe");
-                } else {
-
-                    Archivodata remoteFichero = Mapper.convertDocumentToFichero(remoteDocument);
-
-                    if (localFichero.getFechaUltimaModificacion().equals(remoteFichero.getTiempo()) || localFichero.getHash().equals(remoteFichero.getHash())) {
-                        System.out.println("El fichero " + absolutePath.getFileName().toString() + " local y remoto son iguales");
-                    } else {
-                        System.out.println("El fichero " + absolutePath.getFileName().toString() + " local y remoto son diferentes");
-                        if (showDetail) {
-                            System.out.println("Comparando " + absolutePath.getFileName().toString() + "...");
-                            compareLineByLineManelVersion(localFichero, remoteFichero);
+            File file = new File(ruta);
+            if (file.exists()) {
+                BufferedReader lector = new BufferedReader(new FileReader(file));
+                StringBuilder sb = new StringBuilder();
+                String linea;
+                if (file.getName().endsWith(".java") || file.getName().endsWith(".txt")
+                        || file.getName().endsWith(".xml") || file.getName().endsWith(".html")) {
+                    long tamano = file.length();
+                    if (tamano < 10485760) {
+                        while ((linea = lector.readLine()) != null) {
+                            sb.append(linea);
+                        }
+                        lector.close();
+                        String string = sb.toString();
+                        //Guardamos la ultima fecha de modificación del archivo.
+                        Date fechaLocal = new Date(file.lastModified());
+                        //Busca en la coleccion el archivo.
+                        Document query = new Document("nom", file.getName());
+                        MongoCursor<Document> cursor = collection.find(query).iterator();
+                        while (cursor.hasNext()) {
+                            Document result = cursor.next();
+                            if (result.containsKey("Fecha de modificación") && result.containsKey("contenido")) {
+                                if (result != null) {
+                                    Archivodata remoto = new Archivodata(result.getString("nom"), result.getDate("Fecha de modificación"), result.getString("contenido"));
+                                    Archivodata local = new Archivodata(file.getName(), fechaLocal, string);
+                                    if (remoto.getTiempo().equals(local.getTiempo()) && remoto.getContenido().equals(local.getContenido())) {
+                                        System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
+                                    } else if (remoto.getTiempo() != local.getTiempo()) {
+                                        System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. És a dir, són diferents.");
+                                    } else {
+                                        System.out.println("Error=");
+                                    }
+                                } else {
+                                    System.out.println("El archivo remoto no existe");
+                                }
+                            }
                         }
                     }
+                } else {
+                    System.out.println("No es un .java, .html, .txt o .xml");
                 }
-            }
-        } catch (NoSuchAlgorithmException ex) {
-            System.out.println("Error al intentar obtener el hash del documento, por favor contacte con su administrador: " + ex.getMessage());
-        } catch (IOException e) {
-            System.out.println("Error en la escritura o lectura del documento: " + e.getMessage());
-        }
-    }*/
-    public static void compare(String dir_base, String fitxer, boolean detail, MongoCollection<Document> collection) throws IOException {
-        File localFile = new File(fitxer);
-        if (!localFile.exists()) {
-            System.out.println("El fitxer local no existeix.");
-            return;
-        }
-
-        String baseDirPath = dir_base.substring(0, dir_base.lastIndexOf("/") + 1);
-        String remotePath = dir_base + localFile.getName();
-        Document remoteDoc = collection.find(Filters.eq("path", remotePath)).first();
-        if (remoteDoc == null) {
-            System.out.println("El fitxer remot no existeix.");
-            return;
-        }
-
-        long localTimestamp = localFile.lastModified();
-        long remoteTimestamp = remoteDoc.getLong("timestamp");
-        if (localTimestamp == remoteTimestamp) {
-            System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
-            return;
-        }
-
-        String localContent = new String(Files.readAllBytes(localFile.toPath()));
-        String remoteContent = remoteDoc.getString("content");
-        if (localContent.equals(remoteContent)) {
-            System.out.println("El local i el remot NO tenen el mateix timestamp, però tenen el mateix contingut.");
-            return;
-        }
-
-        System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. Són diferents.");
-        if (detail) {
-            String[] localLines = localContent.split("\n");
-            String[] remoteLines = remoteContent.split("\n");
-
-            System.out.println("Diferències de local a remot:");
-            for (int i = 0; i < localLines.length; i++) {
-                int remoteIndex = indexOfLine(remoteLines, localLines[i]);
-                if (remoteIndex == -1) {
-                    System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + localLines[i]);
-                }
-            }
-
-            System.out.println("Diferències de remot a local:");
-            for (int i = 0; i < remoteLines.length; i++) {
-                int localIndex = indexOfLine(localLines, remoteLines[i]);
-                if (localIndex == -1) {
-                    System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + remoteLines[i]);
-                }
-            }
-        }
-    }
-
-    private static void compareDirRecursive(File dir, String relativePath, boolean detail, MongoCollection<Document> collection) throws IOException {
-        File[] files = dir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                String subPath = relativePath + "/" + file.getName();
-                compareDirRecursive(file, subPath, detail, collection);
             } else {
-                String filePath = relativePath + "/" + file.getName();
-                compare(dir.getPath() + "/", filePath, detail, collection);
+                System.out.println("El archivo no existe");
             }
+
+        } catch (IOException e) {
+            System.out.println("error de escritura");
         }
     }
 
-    private static int indexOfLine(String[] lines, String line) {
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].equals(line)) {
-                return i;
+    public static void esDirectorio(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) {
+
+        File file = new File(ruta);
+        if (file.isDirectory()) {
+            File[] archivos = file.listFiles();
+            for (File archivo : archivos) {
+                if (archivo.isFile()) {
+                    // hacer algo con el archivo
+                    try {
+                        String rutaArchivo = ruta + "\\" + archivo.getName();
+                        Comparar.compare(dir_base, rutaArchivo, false, collection);
+                    } catch (Exception e) {
+
+                    }
+                }
             }
+        } else {
+            try {
+                Comparar.compare(dir_base, ruta, false, collection);
+            } catch (Exception e) {
+            }
+
         }
-        return -1;
     }
 }
