@@ -95,13 +95,9 @@ public class ClonarVisual {
                     Files.createFile(archivo);
                     Files.writeString(archivo, doc.getString("contenido"));
                     creadoCorrectamente = true;
-                } catch (IOException e) {
-                    System.out.println("Error al clonar el repositorio ");
+                } catch (IOException | NullPointerException e) {
                     creadoCorrectamente = false;
                     break;
-                } catch (NullPointerException e) {
-                    System.out.println("Error al clonar el repositorio ");
-                    creadoCorrectamente = false;
                 }
             }
         }
