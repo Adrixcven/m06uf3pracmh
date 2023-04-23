@@ -7,6 +7,7 @@ package Logica;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import entidades.Archivodata;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,85 +81,87 @@ public class Comparar {
             System.out.println("Error en la escritura o lectura del documento: " + e.getMessage());
         }
     }*/
-    public static void compararSinDetalles(String rep, String rutaLocal, boolean detail, MongoDatabase bbdd) {
-        File archivoLocal = new File(rutaLocal);
-        if (!archivoLocal.exists()) {
-            System.out.println("El archivo local no existe.");
-            return;
-        }
-        // Obtener el contenido del archivo local
-        String contenidoLocal = obtenerContenidoArchivo(archivoLocal);
-
-        // Buscar el archivo remoto en la base de datos
-        BasicDBObject query = new BasicDBObject();
-        query.put("repositorio", rep);
-        query.put("nombre", archivoLocal.getName());
-        Document resultado = bbdd.getCollection("archivos").find(query).first();
-
-        if (resultado == null) {
-            System.out.println("El archivo remoto no existe.");
-            return;
-        }
-        // Obtener el contenido del archivo remoto
-        String contenidoRemoto = (String) resultado.get("contenido");
-
-        // Comparar los timestamps
-        long timestampLocal = archivoLocal.lastModified();
-        long timestampRemoto = resultado.getLong("timestamp");
-        if (timestampLocal == timestampRemoto) {
-            System.out.println("El archivo local y el remoto tienen exactamente el mismo timestamp, son iguales.");
-            return;
+    public static void compare(String dir_base, String fitxer, boolean detail, MongoCollection<Document> collection) throws IOException {
+        File baseDir = new File(dir_base);
+        if (!baseDir.isDirectory()) {
+            throw new IllegalArgumentException("El directori base no existeix.");
         }
 
-        // Comparar los contenidos
-        if (contenidoLocal.equals(contenidoRemoto)) {
-            System.out.println("El archivo local y el remoto tienen distinto timestamp pero son iguales.");
-            return;
-        }
-
-        System.out.println("El archivo local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido.");
-
-        // Si se activó el modo detalle, comparar línea a línea
-        if (detail) {
-            String[] lineasLocal = contenidoLocal.split("\\r?\\n");
-            String[] lineasRemoto = contenidoRemoto.split("\\r?\\n");
-
-            System.out.println("Diferencias de local a remoto:");
-            for (int i = 0; i < lineasLocal.length; i++) {
-                if (!buscarLineaEnArray(lineasLocal[i], lineasRemoto)) {
-                    System.out.println("- Modificada o eliminada en línea " + (i + 1) + ": " + lineasLocal[i]);
-                }
+        if (fitxer == null) {
+            // Comparem tot el directori de forma recursiva.
+            compareDirRecursive(baseDir, "", detail, collection);
+        } else {
+            // Comparem només un fitxer.
+            File localFile = new File(baseDir, fitxer);
+            if (!localFile.exists()) {
+                System.out.println("El fitxer local no existeix.");
+                return;
             }
 
-            System.out.println("Diferencias de remoto a local:");
-            for (int i = 0; i < lineasRemoto.length; i++) {
-                if (!buscarLineaEnArray(lineasRemoto[i], lineasLocal)) {
-                    System.out.println("- Agregada o modificada en línea " + (i + 1) + ": " + lineasRemoto[i]);
+            String remotePath = "/" + localFile.getAbsolutePath().replace(baseDir.getAbsolutePath(), "").replace("\\", "/");
+            Document remoteDoc = collection.find(Filters.eq("path", remotePath)).first();
+            if (remoteDoc == null) {
+                System.out.println("El fitxer remot no existeix.");
+                return;
+            }
+
+            long localTimestamp = localFile.lastModified();
+            long remoteTimestamp = remoteDoc.getLong("timestamp");
+            if (localTimestamp == remoteTimestamp) {
+                System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
+                return;
+            }
+
+            String localContent = new String(Files.readAllBytes(localFile.toPath()));
+            String remoteContent = remoteDoc.getString("content");
+            if (localContent.equals(remoteContent)) {
+                System.out.println("El local i el remot NO tenen el mateix timestamp, però tenen el mateix contingut.");
+                return;
+            }
+
+            System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. Són diferents.");
+            if (detail) {
+                String[] localLines = localContent.split("\n");
+                String[] remoteLines = remoteContent.split("\n");
+
+                System.out.println("Diferències de local a remot:");
+                for (int i = 0; i < localLines.length; i++) {
+                    int remoteIndex = indexOfLine(remoteLines, localLines[i]);
+                    if (remoteIndex == -1) {
+                        System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + localLines[i]);
+                    }
+                }
+
+                System.out.println("Diferències de remot a local:");
+                for (int i = 0; i < remoteLines.length; i++) {
+                    int localIndex = indexOfLine(localLines, remoteLines[i]);
+                    if (localIndex == -1) {
+                        System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + remoteLines[i]);
+                    }
                 }
             }
         }
     }
 
-// Función auxiliar para obtener el contenido de un archivo
-    public static String obtenerContenidoArchivo(File archivo) {
-        StringBuilder contenido = new StringBuilder();
-        try ( Scanner scanner = new Scanner(archivo)) {
-            while (scanner.hasNextLine()) {
-                contenido.append(scanner.nextLine()).append(System.lineSeparator());
+    private static void compareDirRecursive(File dir, String relativePath, boolean detail, MongoCollection<Document> collection) throws IOException {
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                String subPath = relativePath + "/" + file.getName();
+                compareDirRecursive(file, subPath, detail, collection);
+            } else {
+                String filePath = relativePath + "/" + file.getName();
+                compare(filePath, null, detail, collection);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return contenido.toString();
     }
 
-// Función auxiliar para buscar una línea en un array de líneas
-    public static boolean buscarLineaEnArray(String linea, String[] array) {
-        for (String elemento : array) {
-            if (linea.equals(elemento)) {
-                return true;
+    private static int indexOfLine(String[] lines, String line) {
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].equals(line)) {
+                return i;
             }
         }
-        return false;
+        return -1;
     }
 }
