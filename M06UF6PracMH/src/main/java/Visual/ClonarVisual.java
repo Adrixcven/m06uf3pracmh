@@ -4,6 +4,7 @@
  */
 package Visual;
 
+import static Logica.Clonar.clonado;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -24,8 +25,23 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * Clase que contiene dos métodos para clonar una colección de MongoDB y
+ * almacenarla en un directorio local.
+ */
 public class ClonarVisual {
 
+    /**
+     *
+     * Método que comprueba si existe la colección especificada en la base de
+     * datos MongoDB, y si es así, crea un directorio con el nombre de la
+     * colección en el directorio raíz del usuario actual. Luego, llama al
+     * método 'clonado' para realizar la clonación de los documentos.
+     *
+     * @param coleccion nombre de la colección que se desea clonar.
+     * @param db base de datos MongoDB que contiene la colección a clonar.
+     */
     public static void clonar(String coleccion, MongoDatabase db) {
         Scanner sc = new Scanner(System.in);
 
@@ -52,64 +68,5 @@ public class ClonarVisual {
                 return;
             }
         }
-
     }
-
-    public static void clonado(String coleccion, MongoDatabase db, Path directorio) {
-
-        //2. Seleccionar documentos por fecha
-        Scanner sc = new Scanner(System.in);
-        LocalDateTime fechaModificacion = null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        while (true) {
-            System.out.print("Introduce la fecha de modificación (yyyy-MM-dd HH:mm:ss): ");
-            String fechaModificacionStr = sc.nextLine();
-            if (fechaModificacionStr.isEmpty()) {
-                System.out.println("Debes introducir una fecha.");
-                continue;
-            }
-            try {
-                fechaModificacion = LocalDateTime.parse(fechaModificacionStr, formatter);
-                break;
-            } catch (DateTimeParseException e) {
-                System.out.println("Fecha introducida incorrecta. Debe estar en formato yyyy-MM-dd HH:mm:ss");
-            }
-        }
-
-        MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
-        MongoCursor<Document> cursor = coleccionMongo.find().iterator();
-
-        boolean creadoCorrectamente = false;
-        while (cursor.hasNext()) {
-            Document doc = cursor.next();
-            LocalDateTime fechaDoc = doc.getDate("Fecha de modificación").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-            //Comprobar si el documento está dentro del rango de fechas
-            if (fechaDoc.isBefore(fechaModificacion) || fechaDoc.isEqual(fechaModificacion)) {
-
-                //3. Crear archivo y escribir contenido
-                String nombreArchivo = doc.getString("nom");
-
-                try {
-                    Path archivo = directorio.resolve(nombreArchivo);
-                    Files.createFile(archivo);
-                    Files.writeString(archivo, doc.getString("contenido"));
-                    creadoCorrectamente = true;
-                } catch (IOException | NullPointerException e) {
-                    creadoCorrectamente = false;
-                    break;
-                }
-            }
-        }
-        if (creadoCorrectamente == true) {
-            System.out.println("Se ha clonado correctamente el directorio.");
-        } else {
-            System.out.println("Ha habido un problema clonando el repositorio.");
-            try {
-                Files.delete(directorio);
-            } catch (IOException e) {
-            }
-        }
-    }
-
 }

@@ -15,8 +15,21 @@ import org.bson.Document;
  *
  * @author Adrix
  */
-public class CompararVisual {
+/**
 
+Esta clase se utiliza para comparar un archivo local con un repositorio remoto.
+*/
+public class CompararVisual {
+/**
+
+Compara un archivo local con un repositorio remoto.
+
+@param coleccio la colección del repositorio remoto.
+
+@param bbdd la base de datos del repositorio remoto.
+
+@throws IOException si ocurre un error durante la lectura de archivos.
+*/
     public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) throws IOException {
         Scanner in = new Scanner(System.in);
         System.out.println("Dame la id del repositorio remoto que quieres usar");

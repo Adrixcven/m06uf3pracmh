@@ -1,10 +1,10 @@
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Visual;
 
+import Logica.Bajar;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.io.File;
@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Scanner;
 import org.bson.Document;
@@ -24,8 +25,27 @@ import org.bson.types.Binary;
  *
  * @author Adrix
  */
+/**
+ *
+ * Clase para bajar documentos desde una colección de MongoDB a un repositorio
+ * local.
+ */
 public class BajarVisual {
 
+    /**
+     *
+     * Método para bajar un documento desde una colección de MongoDB a un
+     * repositorio local.
+     *
+     * @param coleccion La colección de MongoDB de la que se quiere bajar un
+     * documento.
+     *
+     * @param db La base de datos de MongoDB en la que se encuentra la
+     * colección.
+     *
+     * @throws IOException Si se produce un error al realizar la operación de
+     * bajada.
+     */
     public static void bajarRemot(String coleccion, MongoDatabase db) throws IOException {
         Scanner in = new Scanner(System.in);
         // Comprobar si existe la colección
@@ -45,100 +65,23 @@ public class BajarVisual {
             System.out.println("Dame la ruta del repositorio local");
             ruta = in.nextLine();
 
-            rutaAdaptada = adaptarRutaAColeccion(ruta, coleccion);
-            rutaFinal = Paths.get(ruta, rutaAdaptada);
-            File carpeta = rutaFinal.toFile();
+            rutaAdaptada = Bajar.adaptarRutaAColeccion(ruta, coleccion);
+            rutaFinal = Paths.get(rutaAdaptada);
+            Path colecci = Paths.get(coleccion);
+            File carpeta = new File(ruta);
 
             if (!carpeta.exists()) {
                 System.out.println("La carpeta no existe");
             } else if (!carpeta.isDirectory()) {
                 System.out.println("La ruta no corresponde a una carpeta");
-            } else if (!carpeta.getName().equals(coleccion)) {
+            } else if (!rutaFinal.equals(colecci)) {
                 System.out.println("El nombre de la carpeta no coincide con el del repositorio remoto");
             } else {
                 carpetaCorrecta = true;
-                Pull(coleccion, db, ruta);
+                Bajar.Pull(coleccion, db, ruta);
             }
 
         }
 
     }
-
-    public static void Pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
-        Scanner in = new Scanner(System.in);
-        Path rutaFinal = Paths.get(ruta);
-
-        // Seleccionar documentos a bajar por nombre
-        MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
-
-        Document documento = new Document();
-        boolean nombreCorrecto = false;
-
-        while (!nombreCorrecto) {
-            System.out.println("Dame el nombre del documento que quieres bajar:");
-            String nombreDocumento = in.nextLine();
-
-            documento = coleccionMongo.find(new Document("nom", nombreDocumento)).first();
-
-            if (documento == null) {
-                System.out.println("El documento no existe en la colección.");
-            } else {
-                nombreCorrecto = true;
-
-                // Comprobar si el archivo existe en la ruta local
-                File archivoLocal = new File(rutaFinal.toString(), nombreDocumento);
-                if (archivoLocal.exists()) {
-                    // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto
-                    Date fechaModificacion = (Date) documento.get("Fecha de modificación");
-                    Date fechaCreacion = new Date(archivoLocal.lastModified());
-
-                    if (fechaCreacion.before(fechaModificacion)) {
-                        System.out.println("El archivo local es anterior al archivo remoto. ¿Desea hacer force?");
-                        System.out.println("1. Sí");
-                        System.out.println("0. No");
-
-                        int opcion = in.nextInt();
-                        in.nextLine();
-
-                        if (opcion == 1) {
-                            // Sobrescribir archivo local
-                            try ( OutputStream out = new FileOutputStream(archivoLocal)) {
-                                Binary contenido = (Binary) documento.get("contenido");
-                                out.write(contenido.getData());
-                                System.out.println("El archivo se ha sobrescrito correctamente.");
-                            }
-                        } else if (opcion == 0) {
-                            System.out.println("La operación se ha cancelado.");
-                        } else {
-                            System.out.println("Opción inválida.");
-                        }
-                    }
-                } else {
-                    // Descargar archivo
-                    try ( OutputStream out = new FileOutputStream(archivoLocal)) {
-                        Binary contenido = (Binary) documento.get("contenido");
-                        out.write(contenido.getData());
-                        System.out.println("El archivo se ha descargado correctamente.");
-                    }
-                }
-            }
-        }
-    }
-
-    private static String adaptarRutaAColeccion(String ruta, String coleccion) {
-        String[] partesRuta = ruta.split("\\\\");
-        String[] partesColeccion = coleccion.split("_");
-
-        // quitar la unidad de la ruta de Windows (por ejemplo, "C:")
-        partesRuta[0] = "";
-
-        // convertir las partes de la ruta en partes de la colección
-        for (int i = 1; i < partesRuta.length; i++) {
-            partesColeccion[i - 1] = partesRuta[i];
-        }
-
-        // unir las partes de la colección con "_"
-        return String.join("_", partesColeccion);
-    }
-
 }
