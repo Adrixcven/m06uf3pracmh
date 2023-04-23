@@ -131,6 +131,19 @@ public class Comparar {
         }
     }
 
+    /**
+     *
+     * Comprueba si la ruta es un directorio y recorre sus archivos para
+     * realizar comparaciones. Si la ruta es un archivo, realiza comparaciones
+     * con dicho archivo.
+     *
+     * @param dir_base la ruta base para las comparaciones
+     * @param ruta la ruta del directorio o archivo a comprobar
+     * @param detail un booleano que indica si se deben mostrar detalles de las
+     * comparaciones
+     * @param collection la colección de MongoDB donde se almacenarán los
+     * resultados de las comparaciones
+     */
     public static void esDirectorio(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) {
 
         File file = new File(ruta);
