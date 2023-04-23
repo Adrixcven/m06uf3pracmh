@@ -85,7 +85,6 @@ public class Comparar {
                                     } else if (remoto.getTiempo() != local.getTiempo()) {
                                         System.out.println("El local y el remoto NO tienen el mismo timestamp o bien NO tienen el mismo contenido. És decir, són diferentes.");
                                         if (detail) {
-                                            // Comparación línea por línea
                                             String[] lineasLocal = local.getContenido().split("\n"); // separa el contenido por líneas
                                             String[] lineasRemoto = remoto.getContenido().split("\n"); // separa el contenido por líneas
                                             System.out.println("Diferencias de local a remoto:");
@@ -98,11 +97,19 @@ public class Comparar {
                                             System.out.println("Diferencias de remoto a local:");
                                             for (int i = 0; i < lineasRemoto.length; i++) {
                                                 linea = lineasRemoto[i];
-                                                if (!local.getContenido().contains(linea)) {
+                                                boolean encontrada = false;
+                                                for (int j = 0; j < lineasLocal.length; j++) {
+                                                    if (lineasLocal[j].equals(linea)) {
+                                                        encontrada = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!encontrada) {
                                                     System.out.println("Línea " + (i + 1) + ": " + linea + " (Modificada o eliminada)");
                                                 }
                                             }
                                         }
+
                                     } else {
                                         System.out.println("Error=");
                                     }
@@ -142,7 +149,6 @@ public class Comparar {
             }
         } else {
             try {
-                
                 Comparar.compare(dir_base, ruta, detail, collection);
             } catch (Exception e) {
             }
