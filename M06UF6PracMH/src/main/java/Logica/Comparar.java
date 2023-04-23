@@ -134,7 +134,7 @@ public class Comparar {
                     // hacer algo con el archivo
                     try {
                         String rutaArchivo = ruta + "\\" + archivo.getName();
-                        Comparar.compare(dir_base, rutaArchivo, false, collection);
+                        Comparar.compare(dir_base, rutaArchivo, detail, collection);
                     } catch (Exception e) {
 
                     }
@@ -142,7 +142,7 @@ public class Comparar {
             }
         } else {
             try {
-                Comparar.compare(dir_base, ruta, false, collection);
+                Comparar.compare(dir_base, ruta, detail, collection);
             } catch (Exception e) {
             }
 
