@@ -44,6 +44,7 @@ public class Crear {
                 System.out.println("Ya el repositorio ya existe");
             }
         }
+        System.out.println("Tu repositorio Remoto " + repositorio + " se ha creado correctamente!");
 
     }
 }
