@@ -65,13 +65,13 @@ public class Comparar {
                     long tamano = file.length();
                     if (tamano < 10485760) {
                         while ((linea = lector.readLine()) != null) {
-                            sb.append(linea + "\n"); // añade un salto de línea al final de cada línea
+                            sb.append(linea);
                         }
                         lector.close();
                         String string = sb.toString();
-//Guardamos la ultima fecha de modificación del archivo.
+                        //Guardamos la ultima fecha de modificación del archivo.
                         Date fechaLocal = new Date(file.lastModified());
-//Busca en la coleccion el archivo.
+                        //Busca en la coleccion el archivo.
                         Document query = new Document("nom", file.getName());
                         MongoCursor<Document> cursor = collection.find(query).iterator();
                         while (cursor.hasNext()) {
@@ -81,9 +81,9 @@ public class Comparar {
                                     Archivodata remoto = new Archivodata(result.getString("nom"), result.getDate("Fecha de modificación"), result.getString("contenido"));
                                     Archivodata local = new Archivodata(file.getName(), fechaLocal, string);
                                     if (remoto.getTiempo().equals(local.getTiempo()) && remoto.getContenido().equals(local.getContenido())) {
-                                        System.out.println("El local y el remoto tienen exactamente el mismo timestamp, son iguales.");
+                                        System.out.println("El local y el remoto tienen exactamente el mismo timestamp, són iguales.");
                                     } else if (remoto.getTiempo() != local.getTiempo()) {
-                                        System.out.println("El local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido. Son diferentes.");
+                                        System.out.println("El local y el remoto NO tienen el mismo timestamp o bien NO tienen el mismo contenido. És decir, són diferentes.");
                                         if (detail) {
 // Comparación línea por línea
                                             String[] lineasLocal = local.getContenido().split("\n"); // separa el contenido por líneas
@@ -118,23 +118,12 @@ public class Comparar {
             } else {
                 System.out.println("El archivo no existe");
             }
+
         } catch (IOException e) {
             System.out.println("error de escritura");
         }
     }
 
-    /**
-     *
-     * Método para comparar todos los archivos de un directorio local con
-     * archivos remotos almacenados en una colección de MongoDB.
-     *
-     * @param dir_base Directorio base del archivo.
-     * @param ruta Ruta del directorio local a comparar.
-     * @param detail Indica si se muestra información detallada de la
-     * comparación.
-     * @param collection Colección de MongoDB donde se almacenan los archivos
-     * remotos.
-     */
     public static void esDirectorio(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) {
 
         File file = new File(ruta);
