@@ -36,13 +36,19 @@ public class BajarVisual {
 
         //comprobar que el repositorio local concuerde con el remoto
         String ruta = "";
+        String rutaAdaptada = "";
+        Path rutaFinal = null;
+
         boolean carpetaCorrecta = false;
 
         while (!carpetaCorrecta) {
             System.out.println("Dame la ruta del repositorio local");
             ruta = in.nextLine();
 
-            File carpeta = new File(ruta);
+            rutaAdaptada = adaptarRutaAColeccion(ruta, coleccion);
+            rutaFinal = Paths.get(ruta, rutaAdaptada);
+            File carpeta = rutaFinal.toFile();
+
             if (!carpeta.exists()) {
                 System.out.println("La carpeta no existe");
             } else if (!carpeta.isDirectory()) {
@@ -58,65 +64,81 @@ public class BajarVisual {
 
     }
 
-public static void Pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
-    Scanner in = new Scanner(System.in);
-    Path rutaFinal = Paths.get(ruta);
+    public static void Pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
+        Scanner in = new Scanner(System.in);
+        Path rutaFinal = Paths.get(ruta);
 
-    // Seleccionar documentos a bajar por nombre
-    MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
+        // Seleccionar documentos a bajar por nombre
+        MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
 
-    Document documento = null;
-    boolean nombreCorrecto = false;
+        Document documento = new Document();
+        boolean nombreCorrecto = false;
 
-    while (!nombreCorrecto) {
-        System.out.println("Dame el nombre del documento que quieres bajar:");
-        String nombreDocumento = in.nextLine();
+        while (!nombreCorrecto) {
+            System.out.println("Dame el nombre del documento que quieres bajar:");
+            String nombreDocumento = in.nextLine();
 
-        documento = coleccionMongo.find(new Document("nom", nombreDocumento)).first();
+            documento = coleccionMongo.find(new Document("nom", nombreDocumento)).first();
 
-        if (documento == null) {
-            System.out.println("El documento no existe en la colección.");
-        } else {
-            nombreCorrecto = true;
-
-            // Comprobar si el archivo existe en la ruta local
-            File archivoLocal = new File(rutaFinal.toString(), nombreDocumento);
-            if (archivoLocal.exists()) {
-                // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto
-                Date fechaModificacion = (Date) documento.get("Fecha de modificación");
-                Date fechaCreacion = new Date(archivoLocal.lastModified());
-
-                if (fechaCreacion.before(fechaModificacion)) {
-                    System.out.println("El archivo local es anterior al archivo remoto. ¿Desea hacer force?");
-                    System.out.println("1. Sí");
-                    System.out.println("0. No");
-
-                    int opcion = in.nextInt();
-                    in.nextLine();
-
-                    if (opcion == 1) {
-                        // Sobrescribir archivo local
-                        try (OutputStream out = new FileOutputStream(archivoLocal)) {
-                            Binary contenido = (Binary) documento.get("contenido");
-                            out.write(contenido.getData());
-                            System.out.println("El archivo se ha sobrescrito correctamente.");
-                        }
-                    } else if (opcion == 0) {
-                        System.out.println("La operación se ha cancelado.");
-                    } else {
-                        System.out.println("Opción inválida.");
-                    }
-                }
+            if (documento == null) {
+                System.out.println("El documento no existe en la colección.");
             } else {
-                // Descargar archivo
-                try (OutputStream out = new FileOutputStream(archivoLocal)) {
-                    Binary contenido = (Binary) documento.get("contenido");
-                    out.write(contenido.getData());
-                    System.out.println("El archivo se ha descargado correctamente.");
+                nombreCorrecto = true;
+
+                // Comprobar si el archivo existe en la ruta local
+                File archivoLocal = new File(rutaFinal.toString(), nombreDocumento);
+                if (archivoLocal.exists()) {
+                    // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto
+                    Date fechaModificacion = (Date) documento.get("Fecha de modificación");
+                    Date fechaCreacion = new Date(archivoLocal.lastModified());
+
+                    if (fechaCreacion.before(fechaModificacion)) {
+                        System.out.println("El archivo local es anterior al archivo remoto. ¿Desea hacer force?");
+                        System.out.println("1. Sí");
+                        System.out.println("0. No");
+
+                        int opcion = in.nextInt();
+                        in.nextLine();
+
+                        if (opcion == 1) {
+                            // Sobrescribir archivo local
+                            try ( OutputStream out = new FileOutputStream(archivoLocal)) {
+                                Binary contenido = (Binary) documento.get("contenido");
+                                out.write(contenido.getData());
+                                System.out.println("El archivo se ha sobrescrito correctamente.");
+                            }
+                        } else if (opcion == 0) {
+                            System.out.println("La operación se ha cancelado.");
+                        } else {
+                            System.out.println("Opción inválida.");
+                        }
+                    }
+                } else {
+                    // Descargar archivo
+                    try ( OutputStream out = new FileOutputStream(archivoLocal)) {
+                        Binary contenido = (Binary) documento.get("contenido");
+                        out.write(contenido.getData());
+                        System.out.println("El archivo se ha descargado correctamente.");
+                    }
                 }
             }
         }
     }
-}
+
+    private static String adaptarRutaAColeccion(String ruta, String coleccion) {
+        String[] partesRuta = ruta.split("\\\\");
+        String[] partesColeccion = coleccion.split("_");
+
+        // quitar la unidad de la ruta de Windows (por ejemplo, "C:")
+        partesRuta[0] = "";
+
+        // convertir las partes de la ruta en partes de la colección
+        for (int i = 1; i < partesRuta.length; i++) {
+            partesColeccion[i - 1] = partesRuta[i];
+        }
+
+        // unir las partes de la colección con "_"
+        return String.join("_", partesColeccion);
+    }
 
 }
