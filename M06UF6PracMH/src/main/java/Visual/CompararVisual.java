@@ -47,16 +47,14 @@ public class CompararVisual {
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-//                coleccio = bbdd.getCollection(rep);
-//                String ruta = "";
-//                if (nombre != "") {
-//                    ruta = nameRep + "\\" + nombre;
-//                } else {
-//                    ruta = nameRep;
-//                }
-//                
-//                Comparar.esDirectorio(rep, ruta, true, coleccio);
-                System.out.println("No funciona con detalles todavia");
+                coleccio = bbdd.getCollection(rep);
+                String ruta = "";
+                if (nombre != "") {
+                    ruta = nameRep + "\\" + nombre;
+                } else {
+                    ruta = nameRep;
+                }
+                Comparar.esDirectorio(rep, ruta, true, coleccio);
                 continuar = false;
             } else if (detalles == 0) {
                 coleccio = bbdd.getCollection(rep);
@@ -65,12 +63,6 @@ public class CompararVisual {
                     ruta = nameRep + "\\" + nombre;
                 } else {
                     ruta = nameRep;
-                }
-                String os = System.getProperty("os.name").toLowerCase();
-                boolean isUbuntu = os.contains("ubuntu");
-                if (isUbuntu) {
-                } else {
-                    ruta = ruta.replace("\\", "/");
                 }
 
                 Comparar.esDirectorio(rep, ruta, false, coleccio);
