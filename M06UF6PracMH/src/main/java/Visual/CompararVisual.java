@@ -19,9 +19,9 @@ public class CompararVisual {
 
     public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) throws IOException {
         Scanner in = new Scanner(System.in);
-        System.out.println("Dame el identificador del repositorio remoto que quieres usar");
+        System.out.println("Dame la ruta del archivo remoto que quieres usar");
         var rep = in.nextLine();
-        System.out.println("Dime el nombre del archivo Local que quieres comparar");
+        System.out.println("Dime la ruta del archivo Local que quieres comparar");
         var nameRep = in.nextLine();
         var continuar = true;
         while (continuar) {
