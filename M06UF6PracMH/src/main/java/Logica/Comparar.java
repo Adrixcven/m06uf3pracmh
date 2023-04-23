@@ -4,8 +4,10 @@
  */
 package Logica;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import entidades.Archivodata;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,79 +30,135 @@ import java.util.Scanner;
  */
 public class Comparar {
 
-    public static void compararConDetalles(String rep, String ruta, MongoDatabase bbdd) {
-        MongoCollection<Document> coleccio = bbdd.getCollection(rep);
-        Document doc = coleccio.find(new Document("nombre", rep)).first();
-        if (doc == null) {
-            System.out.println("No se encontró el repositorio remoto");
-            return;
-        }
-        byte[] contenidoRemoto = (byte[]) doc.get("contenido");
-        Path path = Paths.get(ruta);
+    /*public static void compararConDetalles(Path absolutePath, boolean showDetail, boolean recursive) {
+
         try {
-            byte[] contenidoLocal = Files.readAllBytes(path);
-            if (contenidoLocal.length != contenidoRemoto.length) {
-                System.out.println("Los archivos no tienen el mismo tamaño");
+
+            if (!absolutePath.toFile().exists()) {
+                System.out.println("El fichero o directorio local no existe");
                 return;
             }
-            boolean sonIguales = true;
-            for (int i = 0; i < contenidoLocal.length; i++) {
-                if (contenidoLocal[i] != contenidoRemoto[i]) {
-                    System.out.printf("Los archivos son diferentes en la posición %d%n", i);
-                    sonIguales = false;
+
+            if (absolutePath.toFile().isDirectory()) {
+                if (!recursive) {
+                    System.out.println("Es un directorio, por favor indique el fichero a comparar o use la opción recursiva");
+                    return;
+                }
+
+                Files.walkFileTree(absolutePath, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        compararConDetalles(file, showDetail, true);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } else {
+
+                Archivodata localFichero = filePathToFichero(absolutePath);
+                Document remoteDocument = dataLayer.findDocumentByPath(absolutePath.toString());
+
+                if (remoteDocument == null) {
+                    System.out.println("El fichero " + absolutePath.getFileName().toString() + " remoto no existe");
+                } else {
+
+                    Archivodata remoteFichero = Mapper.convertDocumentToFichero(remoteDocument);
+
+                    if (localFichero.getFechaUltimaModificacion().equals(remoteFichero.getTiempo()) || localFichero.getHash().equals(remoteFichero.getHash())) {
+                        System.out.println("El fichero " + absolutePath.getFileName().toString() + " local y remoto son iguales");
+                    } else {
+                        System.out.println("El fichero " + absolutePath.getFileName().toString() + " local y remoto son diferentes");
+                        if (showDetail) {
+                            System.out.println("Comparando " + absolutePath.getFileName().toString() + "...");
+                            compareLineByLineManelVersion(localFichero, remoteFichero);
+                        }
+                    }
                 }
             }
-            if (sonIguales) {
-                System.out.println("Los archivos son iguales");
-            }
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println("Error al intentar obtener el hash del documento, por favor contacte con su administrador: " + ex.getMessage());
         } catch (IOException e) {
-            System.out.println("No se pudo leer el archivo local");
+            System.out.println("Error en la escritura o lectura del documento: " + e.getMessage());
+        }
+    }*/
+    public static void compararSinDetalles(String rep, String rutaLocal, boolean detail, MongoDatabase bbdd) {
+        File archivoLocal = new File(rutaLocal);
+        if (!archivoLocal.exists()) {
+            System.out.println("El archivo local no existe.");
+            return;
+        }
+        // Obtener el contenido del archivo local
+        String contenidoLocal = obtenerContenidoArchivo(archivoLocal);
+
+        // Buscar el archivo remoto en la base de datos
+        BasicDBObject query = new BasicDBObject();
+        query.put("repositorio", rep);
+        query.put("nombre", archivoLocal.getName());
+        Document resultado = bbdd.getCollection("archivos").find(query).first();
+
+        if (resultado == null) {
+            System.out.println("El archivo remoto no existe.");
+            return;
+        }
+        // Obtener el contenido del archivo remoto
+        String contenidoRemoto = (String) resultado.get("contenido");
+
+        // Comparar los timestamps
+        long timestampLocal = archivoLocal.lastModified();
+        long timestampRemoto = resultado.getLong("timestamp");
+        if (timestampLocal == timestampRemoto) {
+            System.out.println("El archivo local y el remoto tienen exactamente el mismo timestamp, son iguales.");
+            return;
+        }
+
+        // Comparar los contenidos
+        if (contenidoLocal.equals(contenidoRemoto)) {
+            System.out.println("El archivo local y el remoto tienen distinto timestamp pero son iguales.");
+            return;
+        }
+
+        System.out.println("El archivo local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido.");
+
+        // Si se activó el modo detalle, comparar línea a línea
+        if (detail) {
+            String[] lineasLocal = contenidoLocal.split("\\r?\\n");
+            String[] lineasRemoto = contenidoRemoto.split("\\r?\\n");
+
+            System.out.println("Diferencias de local a remoto:");
+            for (int i = 0; i < lineasLocal.length; i++) {
+                if (!buscarLineaEnArray(lineasLocal[i], lineasRemoto)) {
+                    System.out.println("- Modificada o eliminada en línea " + (i + 1) + ": " + lineasLocal[i]);
+                }
+            }
+
+            System.out.println("Diferencias de remoto a local:");
+            for (int i = 0; i < lineasRemoto.length; i++) {
+                if (!buscarLineaEnArray(lineasRemoto[i], lineasLocal)) {
+                    System.out.println("- Agregada o modificada en línea " + (i + 1) + ": " + lineasRemoto[i]);
+                }
+            }
         }
     }
 
-    /*public static void compararSinDetalles(MongoDatabase bbdd, String repositoryPath, String filePathString, boolean lineDetail) {
-        Scanner str = new Scanner(System.in);
-        int option = -1;
+// Función auxiliar para obtener el contenido de un archivo
+    public static String obtenerContenidoArchivo(File archivo) {
+        StringBuilder contenido = new StringBuilder();
+        try ( Scanner scanner = new Scanner(archivo)) {
+            while (scanner.hasNextLine()) {
+                contenido.append(scanner.nextLine()).append(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contenido.toString();
+    }
 
-        while (option != 0) {
-            try {
-                System.out.println("1. Comparar archivo");
-                System.out.println("2. Comparar repositorio");
-                System.out.println("3. Activar/desactivar detalle de línea/s");
-                System.out.println("0. Atrás");
-                option = str.nextInt();
-
-                if (option == 1) {
-                    //Concatena la ruta del archivo con la del repositorio.
-                    Path absolutePath = Paths.get(repositoryPath, filePathString);
-                    //Aplica la lógica del compare
-                    compare(absolutePath, lineDetail, false);
-                } else if (option == 2) {
-                    System.out.println("Introduce la ruta del directorio partiendo del repositorio e incluyendo la primera barra: ");
-                    System.out.println("Ejemplo: \\directorio, para subir todo el repositorio de manera recursiva, pulsar enter.");
-                    String directoryPathString = str.nextLine();
-
-                    //Concatena la ruta del archivo con la del repositorio.
-                    Path absolutePath = Paths.get(repositoryPath, directoryPathString);
-                    //Aplica la lógica del compare
-                    compare(absolutePath, lineDetail, true);
-                } else if (option == 3) {
-                    if (!lineDetail) {
-                        lineDetail = true;
-                        System.out.println("Detalle de línea activado.");
-                    } else {
-                        lineDetail = false;
-                        System.out.println("Detalle de línea desactivado.");
-                    }
-                } else if (option == 0) {
-                    // Salir del bucle
-                } else {
-                    System.out.println("Opción introducida no válida.");
-                }
-            } catch (InputMismatchException ex) {
-                str.nextLine();
-                System.out.println("El valor debe ser numérico.");
+// Función auxiliar para buscar una línea en un array de líneas
+    public static boolean buscarLineaEnArray(String linea, String[] array) {
+        for (String elemento : array) {
+            if (linea.equals(elemento)) {
+                return true;
             }
         }
-    }*/
+        return false;
+    }
 }
