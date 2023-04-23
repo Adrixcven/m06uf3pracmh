@@ -1,10 +1,10 @@
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Visual;
 
+import Logica.Bajar;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.io.File;
@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Scanner;
 import org.bson.Document;
@@ -45,15 +46,16 @@ public class BajarVisual {
             System.out.println("Dame la ruta del repositorio local");
             ruta = in.nextLine();
 
-            rutaAdaptada = adaptarRutaAColeccion(ruta, coleccion);
-            rutaFinal = Paths.get(ruta, rutaAdaptada);
-            File carpeta = rutaFinal.toFile();
+            rutaAdaptada = Bajar.adaptarRutaAColeccion(ruta, coleccion);
+            rutaFinal = Paths.get(rutaAdaptada);
+            Path colecci = Paths.get(coleccion);
+            File carpeta = new File(ruta);
 
             if (!carpeta.exists()) {
                 System.out.println("La carpeta no existe");
             } else if (!carpeta.isDirectory()) {
                 System.out.println("La ruta no corresponde a una carpeta");
-            } else if (!carpeta.getName().equals(coleccion)) {
+            } else if (!rutaFinal.equals(colecci)) {
                 System.out.println("El nombre de la carpeta no coincide con el del repositorio remoto");
             } else {
                 carpetaCorrecta = true;
@@ -86,13 +88,14 @@ public class BajarVisual {
                 nombreCorrecto = true;
 
                 // Comprobar si el archivo existe en la ruta local
-                File archivoLocal = new File(rutaFinal.toString(), nombreDocumento);
+                String rutacompleta = rutaFinal.toString() + "\\" + nombreDocumento;
+                File archivoLocal = new File(rutacompleta);
                 if (archivoLocal.exists()) {
                     // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto
-                    Date fechaModificacion = (Date) documento.get("Fecha de modificación");
-                    Date fechaCreacion = new Date(archivoLocal.lastModified());
+                    Date fechaRemoto = documento.getDate("Fecha de modificación");
+                    Date fechaLocal = new Date(archivoLocal.lastModified());
 
-                    if (fechaCreacion.before(fechaModificacion)) {
+                    if (fechaLocal.before(fechaRemoto)) {
                         System.out.println("El archivo local es anterior al archivo remoto. ¿Desea hacer force?");
                         System.out.println("1. Sí");
                         System.out.println("0. No");
@@ -103,42 +106,35 @@ public class BajarVisual {
                         if (opcion == 1) {
                             // Sobrescribir archivo local
                             try ( OutputStream out = new FileOutputStream(archivoLocal)) {
-                                Binary contenido = (Binary) documento.get("contenido");
-                                out.write(contenido.getData());
+                                String contenidoString = (String) documento.get("contenido");
+                                out.write(contenidoString.getBytes());
                                 System.out.println("El archivo se ha sobrescrito correctamente.");
+                            }catch(Exception e){
+                                System.out.println("Error a la hora de descargar el archivo");
                             }
                         } else if (opcion == 0) {
                             System.out.println("La operación se ha cancelado.");
                         } else {
                             System.out.println("Opción inválida.");
                         }
+                    }else{
+                        System.out.println("El archivo es mas nuevo que el subido");
                     }
+                    
                 } else {
                     // Descargar archivo
                     try ( OutputStream out = new FileOutputStream(archivoLocal)) {
-                        Binary contenido = (Binary) documento.get("contenido");
-                        out.write(contenido.getData());
+                        String contenidoString = (String) documento.get("contenido");
+                        out.write(contenidoString.getBytes());
                         System.out.println("El archivo se ha descargado correctamente.");
+                    }catch(Exception e){
+                        System.out.println("Error a la hora de descargar el archivo");
                     }
                 }
             }
         }
     }
 
-    private static String adaptarRutaAColeccion(String ruta, String coleccion) {
-        String[] partesRuta = ruta.split("\\\\");
-        String[] partesColeccion = coleccion.split("_");
 
-        // quitar la unidad de la ruta de Windows (por ejemplo, "C:")
-        partesRuta[0] = "";
-
-        // convertir las partes de la ruta en partes de la colección
-        for (int i = 1; i < partesRuta.length; i++) {
-            partesColeccion[i - 1] = partesRuta[i];
-        }
-
-        // unir las partes de la colección con "_"
-        return String.join("_", partesColeccion);
-    }
 
 }
