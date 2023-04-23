@@ -23,6 +23,8 @@ public class CompararVisual {
         var rep = in.nextLine();
         System.out.println("Dime la ruta del archivo Local que quieres comparar");
         var nameRep = in.nextLine();
+        System.out.println("Dame el identificador del repositorio remoto.");
+        String repositorio = in.nextLine();
         var continuar = true;
         while (continuar) {
             System.out.println("Quieres hacer que tenga detalles?");
@@ -33,7 +35,7 @@ public class CompararVisual {
                 //Comparar.compararConDetalles(rep, rutaLocal, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compare(rep, nameRep, false, coleccio);
+                Comparar.compare(rep, nameRep, false, coleccio, repositorio);
                 continuar = false;
             } else {
                 System.out.println("Error");

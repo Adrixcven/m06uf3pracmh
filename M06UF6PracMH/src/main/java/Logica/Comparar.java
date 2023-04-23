@@ -81,67 +81,78 @@ public class Comparar {
             System.out.println("Error en la escritura o lectura del documento: " + e.getMessage());
         }
     }*/
-    public static void compare(String dir_base, String fitxer, boolean detail, MongoCollection<Document> collection) throws IOException {
-        File localFile = new File(fitxer);
-        if (!localFile.exists()) {
-            System.out.println("El fitxer local no existeix.");
-            return;
+    public static void compare(String dir_base, String fitxer, boolean detail, MongoCollection<Document> collection, String remoteRepositoryId) throws IOException {
+        File baseDir = new File(dir_base);
+        if (!baseDir.isDirectory()) {
+            throw new IllegalArgumentException("El directori base no existeix.");
         }
 
-        String baseDirPath = dir_base.substring(0, dir_base.lastIndexOf("/") + 1);
-        String remotePath = dir_base + localFile.getName();
-        Document remoteDoc = collection.find(Filters.eq("path", remotePath)).first();
-        if (remoteDoc == null) {
-            System.out.println("El fitxer remot no existeix.");
-            return;
-        }
-
-        long localTimestamp = localFile.lastModified();
-        long remoteTimestamp = remoteDoc.getLong("timestamp");
-        if (localTimestamp == remoteTimestamp) {
-            System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
-            return;
-        }
-
-        String localContent = new String(Files.readAllBytes(localFile.toPath()));
-        String remoteContent = remoteDoc.getString("content");
-        if (localContent.equals(remoteContent)) {
-            System.out.println("El local i el remot NO tenen el mateix timestamp, però tenen el mateix contingut.");
-            return;
-        }
-
-        System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. Són diferents.");
-        if (detail) {
-            String[] localLines = localContent.split("\n");
-            String[] remoteLines = remoteContent.split("\n");
-
-            System.out.println("Diferències de local a remot:");
-            for (int i = 0; i < localLines.length; i++) {
-                int remoteIndex = indexOfLine(remoteLines, localLines[i]);
-                if (remoteIndex == -1) {
-                    System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + localLines[i]);
-                }
+        if (fitxer == null) {
+            // Comparem tot el directori de forma recursiva.
+            compareDirRecursive(baseDir, "", detail, collection, baseDir.getAbsolutePath());
+        } else {
+            // Comparem només un fitxer.
+            File localFile = new File(baseDir, fitxer);
+            if (!localFile.exists()) {
+                System.out.println("El fitxer local no existeix.");
+                return;
             }
 
-            System.out.println("Diferències de remot a local:");
-            for (int i = 0; i < remoteLines.length; i++) {
-                int localIndex = indexOfLine(localLines, remoteLines[i]);
-                if (localIndex == -1) {
-                    System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + remoteLines[i]);
+            String remotePath = "/" + localFile.getAbsolutePath().replace(baseDir.getAbsolutePath(), "").replace("\\", "/");
+            Document remoteDoc = collection.find(Filters.eq("path", remotePath)).first();
+            if (remoteDoc == null) {
+                System.out.println("El fitxer remot no existeix.");
+                return;
+            }
+
+            long localTimestamp = localFile.lastModified();
+            long remoteTimestamp = remoteDoc.getLong("timestamp");
+            if (localTimestamp == remoteTimestamp) {
+                System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
+                return;
+            }
+
+            String localContent = new String(Files.readAllBytes(localFile.toPath()));
+            String remoteContent = remoteDoc.getString("content");
+            if (localContent.equals(remoteContent)) {
+                System.out.println("El local i el remot NO tenen el mateix timestamp, però tenen el mateix contingut.");
+                return;
+            }
+
+            System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. Són diferents.");
+            if (detail) {
+                String[] localLines = localContent.split("\n");
+                String[] remoteLines = remoteContent.split("\n");
+
+                System.out.println("Diferències de local a remot:");
+                for (int i = 0; i < localLines.length; i++) {
+                    int remoteIndex = indexOfLine(remoteLines, localLines[i]);
+                    if (remoteIndex == -1) {
+                        System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + localLines[i]);
+                    }
+                }
+
+                System.out.println("Diferències de remot a local:");
+                for (int i = 0; i < remoteLines.length; i++) {
+                    int localIndex = indexOfLine(localLines, remoteLines[i]);
+                    if (localIndex == -1) {
+                        System.out.println("[MODIFICADA o ELIMINADA] Línia " + (i + 1) + ": " + remoteLines[i]);
+                    }
                 }
             }
         }
     }
 
-    private static void compareDirRecursive(File dir, String relativePath, boolean detail, MongoCollection<Document> collection) throws IOException {
+    private static void compareDirRecursive(File dir, String relativePath, boolean detail, MongoCollection<Document> collection, String baseDirPath) throws IOException {
         File[] files = dir.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 String subPath = relativePath + "/" + file.getName();
-                compareDirRecursive(file, subPath, detail, collection);
+                compareDirRecursive(file, subPath, detail, collection, baseDirPath);
             } else {
                 String filePath = relativePath + "/" + file.getName();
-                compare(dir.getPath() + "/", filePath, detail, collection);
+                String localFilePath = baseDirPath + filePath;
+                compare(filePath, null, detail, collection, localFilePath);
             }
         }
     }
