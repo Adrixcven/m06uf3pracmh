@@ -7,8 +7,18 @@ package Visual;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 import org.bson.Document;
+import org.bson.types.Binary;
 
 /**
  *
@@ -16,29 +26,97 @@ import org.bson.Document;
  */
 public class BajarVisual {
 
-    public static void bajarRemot(Scanner in, MongoCollection<Document> coleccio, MongoDatabase bbdd) {
-        System.out.println("Dame el identificador del repositorio remoto que quieres usar");
-        var rep = in.nextLine();
-        System.out.println("Dime la ruta del archivo que quieres bajar");
-        var ruta = in.nextLine();
-        var continuar = true;
-        while (continuar) {
-            System.out.println("Quieres hacer force?");
-            System.out.println("1. Si");
-            System.out.println("0. No");
-            var force = in.nextInt();
-            if (force == 1) {
-                //metodo de bajada con force
-                continuar = false;
-                System.out.println("Se ha bajado el archivo al repositorio remoto!");
-            } else if (force == 0) {
-                //metodo de bajada sin force
-                continuar = false;
-                System.out.println("Se ha bajado el archivo al repositorio remoto!");
+    public static void bajarRemot(String coleccion, MongoDatabase db) throws IOException {
+        Scanner in = new Scanner(System.in);
+        // Comprobar si existe la colección
+        if (!db.listCollectionNames().into(new ArrayList<>()).contains(coleccion)) {
+            System.out.println("La colección no existe.");
+            return;
+        }
+
+        //comprobar que el repositorio local concuerde con el remoto
+        String ruta = "";
+        boolean carpetaCorrecta = false;
+
+        while (!carpetaCorrecta) {
+            System.out.println("Dame la ruta del repositorio local");
+            ruta = in.nextLine();
+
+            File carpeta = new File(ruta);
+            if (!carpeta.exists()) {
+                System.out.println("La carpeta no existe");
+            } else if (!carpeta.isDirectory()) {
+                System.out.println("La ruta no corresponde a una carpeta");
+            } else if (!carpeta.getName().equals(coleccion)) {
+                System.out.println("El nombre de la carpeta no coincide con el del repositorio remoto");
             } else {
-                System.out.println("Error");
+                carpetaCorrecta = true;
+                Pull(coleccion, db, ruta);
             }
+
         }
 
     }
+
+public static void Pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
+    Scanner in = new Scanner(System.in);
+    Path rutaFinal = Paths.get(ruta);
+
+    // Seleccionar documentos a bajar por nombre
+    MongoCollection<Document> coleccionMongo = db.getCollection(coleccion);
+
+    Document documento = null;
+    boolean nombreCorrecto = false;
+
+    while (!nombreCorrecto) {
+        System.out.println("Dame el nombre del documento que quieres bajar:");
+        String nombreDocumento = in.nextLine();
+
+        documento = coleccionMongo.find(new Document("nom", nombreDocumento)).first();
+
+        if (documento == null) {
+            System.out.println("El documento no existe en la colección.");
+        } else {
+            nombreCorrecto = true;
+
+            // Comprobar si el archivo existe en la ruta local
+            File archivoLocal = new File(rutaFinal.toString(), nombreDocumento);
+            if (archivoLocal.exists()) {
+                // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto
+                Date fechaModificacion = (Date) documento.get("Fecha de modificación");
+                Date fechaCreacion = new Date(archivoLocal.lastModified());
+
+                if (fechaCreacion.before(fechaModificacion)) {
+                    System.out.println("El archivo local es anterior al archivo remoto. ¿Desea hacer force?");
+                    System.out.println("1. Sí");
+                    System.out.println("0. No");
+
+                    int opcion = in.nextInt();
+                    in.nextLine();
+
+                    if (opcion == 1) {
+                        // Sobrescribir archivo local
+                        try (OutputStream out = new FileOutputStream(archivoLocal)) {
+                            Binary contenido = (Binary) documento.get("contenido");
+                            out.write(contenido.getData());
+                            System.out.println("El archivo se ha sobrescrito correctamente.");
+                        }
+                    } else if (opcion == 0) {
+                        System.out.println("La operación se ha cancelado.");
+                    } else {
+                        System.out.println("Opción inválida.");
+                    }
+                }
+            } else {
+                // Descargar archivo
+                try (OutputStream out = new FileOutputStream(archivoLocal)) {
+                    Binary contenido = (Binary) documento.get("contenido");
+                    out.write(contenido.getData());
+                    System.out.println("El archivo se ha descargado correctamente.");
+                }
+            }
+        }
+    }
+}
+
 }

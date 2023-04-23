@@ -80,7 +80,9 @@ public class Menu_Inicial {
                     break;
                 case 4:
                     System.out.println("Has elegido Bajar Archivo de Repositorio Remoto");
-                    BajarVisual.bajarRemot(in, coleccio, bbdd);
+                    System.out.println("Dame el identificador del repositorio remoto que quieres usar");
+                    var rep = in.nextLine();
+                    BajarVisual.bajarRemot(rep, bbdd);
                     break;
                 case 5:
                     System.out.println("Has elegido Comparar Archivos entre los Repositorio Remotos y Local");
@@ -88,8 +90,8 @@ public class Menu_Inicial {
                     break;
                 case 6:
                     System.out.println("Has elegido Clonar Repositorio Remoto");
+                    rep = in.nextLine();
                     System.out.println("Dame el identificador del repositorio remoto que quieres usar");
-                    var rep = in.nextLine();
                     rep = in.nextLine();
                     ClonarVisual.clonar(rep, bbdd);
                     break;
