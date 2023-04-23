@@ -37,7 +37,7 @@ public class Subir {
      * el archivo.
      * @param ruta Ruta del archivo que se desea subir.
      */
-    public static void SubirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
+    public static void subirArchivoSinForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File file = new File(ruta);
             BufferedReader lector = new BufferedReader(new FileReader(file));
@@ -98,7 +98,7 @@ public class Subir {
      *
      * @param rutarchivo Archivo que se desea subir.
      */
-    public static void SubirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
+    public static void subirArchivoConForce(Scanner in, MongoCollection<Document> coleccio, String ruta) {
         try {
             File rutarchivo = new File(ruta);
             BufferedReader lector = new BufferedReader(new FileReader(rutarchivo));
@@ -157,11 +157,11 @@ public class Subir {
             for (File archivo : archivos) {
                 if (archivo.isFile()) {
                     // hacer algo con el archivo
-                    SubirArchivoConForce(in, coleccio, ruta);
+                    subirArchivoConForce(in, coleccio, ruta);
                 }
             }
         } else {
-            SubirArchivoConForce(in, coleccio, ruta);
+            subirArchivoConForce(in, coleccio, ruta);
         }
     }
 
@@ -183,11 +183,11 @@ public class Subir {
             for (File archivo : archivos) {
                 if (archivo.isFile()) {
                     // hacer algo con el archivo
-                    SubirArchivoSinForce(in, coleccio, rutarchivo);
+                    subirArchivoSinForce(in, coleccio, rutarchivo);
                 }
             }
         } else {
-            SubirArchivoSinForce(in, coleccio, rutarchivo);
+            subirArchivoSinForce(in, coleccio, rutarchivo);
         }
     }
 }

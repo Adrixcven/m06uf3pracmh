@@ -78,7 +78,7 @@ public class BajarVisual {
                 System.out.println("El nombre de la carpeta no coincide con el del repositorio remoto");
             } else {
                 carpetaCorrecta = true;
-                Bajar.Pull(coleccion, db, ruta);
+                Bajar.pull(coleccion, db, ruta);
             }
 
         }
