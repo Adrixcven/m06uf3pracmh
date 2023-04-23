@@ -68,6 +68,7 @@ public class Bajar {
                 if (isUbuntu) {
                 } else {
                     rutacompleta = rutacompleta.replace("\\", "/");
+                    rutacompleta = "/" + rutacompleta;
                 }
                 File archivoLocal = new File(rutacompleta);
                 if (archivoLocal.exists()) {

@@ -51,8 +51,23 @@ public class CompararVisual {
                 String ruta = "";
                 if (nombre != "") {
                     ruta = nameRep + "\\" + nombre;
+                    String os = System.getProperty("os.name").toLowerCase();
+                    boolean isUbuntu = os.contains("ubuntu");
+                    if (isUbuntu) {
+                    } else {
+                        ruta = ruta.replace("\\", "/");
+                        ruta = "/" + ruta;
+                    }
                 } else {
                     ruta = nameRep;
+                    String os = System.getProperty("os.name").toLowerCase();
+                    boolean isUbuntu = os.contains("ubuntu");
+                    if (isUbuntu) {
+                    } else {
+                        ruta = ruta.replace("\\", "/");
+                        ruta = "/" + ruta;
+                    }
+                    
                 }
                 Comparar.esDirectorio(rep, ruta, true, coleccio);
                 continuar = false;
@@ -61,8 +76,22 @@ public class CompararVisual {
                 String ruta = "";
                 if (nombre != "") {
                     ruta = nameRep + "\\" + nombre;
+                    String os = System.getProperty("os.name").toLowerCase();
+                    boolean isUbuntu = os.contains("ubuntu");
+                    if (isUbuntu) {
+                    } else {
+                        ruta = ruta.replace("\\", "/");
+                        ruta = "/" + ruta;
+                    }
                 } else {
                     ruta = nameRep;
+                    String os = System.getProperty("os.name").toLowerCase();
+                    boolean isUbuntu = os.contains("ubuntu");
+                    if (isUbuntu) {
+                    } else {
+                        ruta = ruta.replace("\\", "/");
+                        ruta = "/" + ruta;
+                    }
                 }
 
                 Comparar.esDirectorio(rep, ruta, false, coleccio);

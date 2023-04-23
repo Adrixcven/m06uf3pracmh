@@ -87,6 +87,7 @@ public class SubirVisual {
             if (isUbuntu) {
             } else {
                 ruta = ruta.replace("\\", "/");
+                ruta = "/"+ruta;
             }
             
             rutarchivo = new File(ruta);
