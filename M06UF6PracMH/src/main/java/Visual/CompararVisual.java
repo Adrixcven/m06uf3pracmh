@@ -7,6 +7,7 @@ package Visual;
 import Logica.Comparar;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.io.IOException;
 import java.util.Scanner;
 import org.bson.Document;
 
@@ -16,14 +17,12 @@ import org.bson.Document;
  */
 public class CompararVisual {
 
-    public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) {
+    public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) throws IOException {
         Scanner in = new Scanner(System.in);
         System.out.println("Dame el identificador del repositorio remoto que quieres usar");
         var rep = in.nextLine();
         System.out.println("Dime el nombre del archivo Local que quieres comparar");
-        var rutaRep = in.nextLine();
-        System.out.println("Dime la ruta del archivo Local que quieres comparar");
-        var rutaLocal = in.nextLine();
+        var nameRep = in.nextLine();
         var continuar = true;
         while (continuar) {
             System.out.println("Quieres hacer que tenga detalles?");
@@ -34,7 +33,7 @@ public class CompararVisual {
                 //Comparar.compararConDetalles(rep, rutaLocal, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
-                Comparar.compararSinDetalles(rutaRep, rep, false, bbdd);
+                Comparar.compare(rep, nameRep, false, coleccio);
                 continuar = false;
             } else {
                 System.out.println("Error");
