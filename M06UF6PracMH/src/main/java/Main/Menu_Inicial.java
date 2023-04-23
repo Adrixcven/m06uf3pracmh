@@ -24,6 +24,18 @@ import org.bson.Document;
  *
  * @author Adrix
  */
+/**
+ *
+ * La clase Menu_Inicial es la clase principal del programa que permite al
+ * usuario interactuar con los distintos
+ *
+ * menús de opciones del sistema.
+ *
+ * La clase también define variables importantes para la conexión con la base de
+ * datos MongoDB y crea una instancia
+ *
+ * de Scanner para leer la entrada del usuario.
+ */
 public class Menu_Inicial {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Menu_Inicial.class);
@@ -31,6 +43,25 @@ public class Menu_Inicial {
     private static MongoDatabase bbdd;
     private static MongoCollection<Document> coleccio;
 
+    /**
+     *
+     * El método main es el punto de entrada del programa.
+     *
+     * Este método presenta al usuario una serie de opciones para interactuar
+     * con el sistema y permite realizar
+     *
+     * operaciones como crear, eliminar y comparar repositorios remotos, subir y
+     * bajar archivos, clonar repositorios,
+     *
+     * entre otras.
+     *
+     * @param args los argumentos de línea de comandos (no se utilizan en este
+     * programa)
+     *
+     * @throws NullPointerException si se produce un error de puntero nulo
+     *
+     * @throws IOException si se produce un error de entrada/salida
+     */
     public static void main(String[] args) throws NullPointerException, IOException {
 
         Scanner in = new Scanner(System.in);
