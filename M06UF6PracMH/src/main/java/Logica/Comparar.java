@@ -34,9 +34,8 @@ import java.util.Scanner;
  */
 public class Comparar {
 
-    public static void compare(String dir_base, String rutaLocal, String nombre, boolean detail, MongoCollection<Document> collection) throws IOException {
+    public static void compare(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) throws IOException {
         try {
-            String ruta = rutaLocal + "\\" + nombre;
             File file = new File(ruta);
             if (file.exists()) {
                 BufferedReader lector = new BufferedReader(new FileReader(file));
@@ -75,6 +74,8 @@ public class Comparar {
                             }
                         }
                     }
+                } else {
+                    System.out.println("No es un .java, .html, .txt o .xml");
                 }
             } else {
                 System.out.println("El archivo no existe");
@@ -82,6 +83,31 @@ public class Comparar {
 
         } catch (IOException e) {
             System.out.println("error de escritura");
+        }
+    }
+
+    public static void esDirectorio(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) {
+
+        File file = new File(ruta);
+        if (file.isDirectory()) {
+            File[] archivos = file.listFiles();
+            for (File archivo : archivos) {
+                if (archivo.isFile()) {
+                    // hacer algo con el archivo
+                    try {
+                        String rutaArchivo = ruta + "\\" + archivo.getName();
+                        Comparar.compare(dir_base, rutaArchivo, false, collection);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        } else {
+            try {
+                Comparar.compare(dir_base, ruta, false, collection);
+            } catch (Exception e) {
+            }
+
         }
     }
 }
