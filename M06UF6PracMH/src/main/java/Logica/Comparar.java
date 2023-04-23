@@ -23,6 +23,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Objects;
@@ -65,12 +66,13 @@ public class Comparar {
                     if (tamano < 10485760) {
                         while ((linea = lector.readLine()) != null) {
                             sb.append(linea);
+                            sb.append("\n"); // agregamos el salto de línea para poder comparar línea por línea
                         }
                         lector.close();
                         String string = sb.toString();
-                        //Guardamos la ultima fecha de modificación del archivo.
+//Guardamos la ultima fecha de modificación del archivo.
                         Date fechaLocal = new Date(file.lastModified());
-                        //Busca en la coleccion el archivo.
+//Busca en la coleccion el archivo.
                         Document query = new Document("nom", file.getName());
                         MongoCursor<Document> cursor = collection.find(query).iterator();
                         while (cursor.hasNext()) {
@@ -80,11 +82,26 @@ public class Comparar {
                                     Archivodata remoto = new Archivodata(result.getString("nom"), result.getDate("Fecha de modificación"), result.getString("contenido"));
                                     Archivodata local = new Archivodata(file.getName(), fechaLocal, string);
                                     if (remoto.getTiempo().equals(local.getTiempo()) && remoto.getContenido().equals(local.getContenido())) {
-                                        System.out.println("El local i el remot tenen exactament el mateix timestamp, són iguals.");
-                                    } else if (remoto.getTiempo() != local.getTiempo()) {
-                                        System.out.println("El local i el remot NO tenen el mateix timestamp o bé NO tenen el mateix contingut. És a dir, són diferents.");
-                                    } else {
-                                        System.out.println("Error=");
+                                        System.out.println("El local y el remoto tienen exactamente el mismo timestamp, son iguales.");
+                                    } else if (remoto.getTiempo() != local.getTiempo() || !remoto.getContenido().equals(local.getContenido())) {
+                                        System.out.println("El local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido, son diferentes.");
+                                        if (detail) {
+// se compara línea a línea ambos archivos
+                                            String[] linesLocal = local.getContenido().split("\n");
+                                            String[] linesRemote = remoto.getContenido().split("\n");
+                                            System.out.println("Diferencias de local a remoto: ");
+                                            for (int i = 0; i < linesLocal.length; i++) {
+                                                if (!Arrays.asList(linesRemote).contains(linesLocal[i])) {
+                                                    System.out.println("Linea " + (i + 1) + " de local: " + linesLocal[i] + " (modificada o eliminada)");
+                                                }
+                                            }
+                                            System.out.println("Diferencias de remoto a local: ");
+                                            for (int i = 0; i < linesRemote.length; i++) {
+                                                if (!Arrays.asList(linesLocal).contains(linesRemote[i])) {
+                                                    System.out.println("Linea " + (i + 1) + " de remoto: " + linesRemote[i] + " (modificada o eliminada)");
+                                                }
+                                            }
+                                        }
                                     }
                                 } else {
                                     System.out.println("El archivo remoto no existe");
@@ -98,7 +115,6 @@ public class Comparar {
             } else {
                 System.out.println("El archivo no existe");
             }
-
         } catch (IOException e) {
             System.out.println("error de escritura");
         }
