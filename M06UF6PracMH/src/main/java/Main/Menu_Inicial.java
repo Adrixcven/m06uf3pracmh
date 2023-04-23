@@ -82,6 +82,7 @@ public class Menu_Inicial {
                     System.out.println("Has elegido Bajar Archivo de Repositorio Remoto");
                     System.out.println("Dame el identificador del repositorio remoto que quieres usar");
                     var rep = in.nextLine();
+                    rep = in.nextLine();
                     BajarVisual.bajarRemot(rep, bbdd);
                     break;
                 case 5:

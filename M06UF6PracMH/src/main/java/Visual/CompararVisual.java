@@ -45,7 +45,7 @@ Compara un archivo local con un repositorio remoto.
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                //Comparar.compararConDetalles(rep, rutaLocal, bbdd);
+                System.out.println("No se puede comparar con detalles todavia");
                 continuar = false;
             } else if (detalles == 0) {
                 coleccio = bbdd.getCollection(rep);
