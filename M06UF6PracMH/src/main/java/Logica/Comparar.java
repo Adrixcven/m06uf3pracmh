@@ -65,8 +65,7 @@ public class Comparar {
                     long tamano = file.length();
                     if (tamano < 10485760) {
                         while ((linea = lector.readLine()) != null) {
-                            sb.append(linea);
-                            sb.append("\n"); // agregamos el salto de línea para poder comparar línea por línea
+                            sb.append(linea + "\n"); // añade un salto de línea al final de cada línea
                         }
                         lector.close();
                         String string = sb.toString();
@@ -83,25 +82,29 @@ public class Comparar {
                                     Archivodata local = new Archivodata(file.getName(), fechaLocal, string);
                                     if (remoto.getTiempo().equals(local.getTiempo()) && remoto.getContenido().equals(local.getContenido())) {
                                         System.out.println("El local y el remoto tienen exactamente el mismo timestamp, son iguales.");
-                                    } else if (remoto.getTiempo() != local.getTiempo() || !remoto.getContenido().equals(local.getContenido())) {
-                                        System.out.println("El local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido, son diferentes.");
+                                    } else if (remoto.getTiempo() != local.getTiempo()) {
+                                        System.out.println("El local y el remoto NO tienen el mismo timestamp o NO tienen el mismo contenido. Son diferentes.");
                                         if (detail) {
-// se compara línea a línea ambos archivos
-                                            String[] linesLocal = local.getContenido().split("\n");
-                                            String[] linesRemote = remoto.getContenido().split("\n");
-                                            System.out.println("Diferencias de local a remoto: ");
-                                            for (int i = 0; i < linesLocal.length; i++) {
-                                                if (!Arrays.asList(linesRemote).contains(linesLocal[i])) {
-                                                    System.out.println("Linea " + (i + 1) + " de local: " + linesLocal[i] + " (modificada o eliminada)");
+// Comparación línea por línea
+                                            String[] lineasLocal = local.getContenido().split("\n"); // separa el contenido por líneas
+                                            String[] lineasRemoto = remoto.getContenido().split("\n"); // separa el contenido por líneas
+                                            System.out.println("Diferencias de local a remoto:");
+                                            for (int i = 0; i < lineasLocal.length; i++) {
+                                                linea = lineasLocal[i];
+                                                if (!remoto.getContenido().contains(linea)) {
+                                                    System.out.println("Línea " + (i + 1) + ": " + linea + " (Modificada o eliminada)");
                                                 }
                                             }
-                                            System.out.println("Diferencias de remoto a local: ");
-                                            for (int i = 0; i < linesRemote.length; i++) {
-                                                if (!Arrays.asList(linesLocal).contains(linesRemote[i])) {
-                                                    System.out.println("Linea " + (i + 1) + " de remoto: " + linesRemote[i] + " (modificada o eliminada)");
+                                            System.out.println("Diferencias de remoto a local:");
+                                            for (int i = 0; i < lineasRemoto.length; i++) {
+                                                linea = lineasRemoto[i];
+                                                if (!local.getContenido().contains(linea)) {
+                                                    System.out.println("Línea " + (i + 1) + ": " + linea + " (Modificada o eliminada)");
                                                 }
                                             }
                                         }
+                                    } else {
+                                        System.out.println("Error=");
                                     }
                                 } else {
                                     System.out.println("El archivo remoto no existe");
