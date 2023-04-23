@@ -32,8 +32,26 @@ import java.util.Scanner;
  *
  * @author Adrix
  */
+/**
+ *
+ * Clase Comparar que contiene métodos para comparar archivos locales con
+ * archivos remotos almacenados en una colección de MongoDB.
+ */
 public class Comparar {
 
+    /**
+     *
+     * Método para comparar un archivo local con un archivo remoto almacenado en
+     * una colección de MongoDB.
+     *
+     * @param dir_base Directorio base del archivo.
+     * @param ruta Ruta del archivo local a comparar.
+     * @param detail Indica si se muestra información detallada de la
+     * comparación.
+     * @param collection Colección de MongoDB donde se almacenan los archivos
+     * remotos.
+     * @throws IOException si hay un error en la lectura del archivo local.
+     */
     public static void compare(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) throws IOException {
         try {
             File file = new File(ruta);
@@ -86,6 +104,18 @@ public class Comparar {
         }
     }
 
+    /**
+     *
+     * Método para comparar todos los archivos de un directorio local con
+     * archivos remotos almacenados en una colección de MongoDB.
+     *
+     * @param dir_base Directorio base del archivo.
+     * @param ruta Ruta del directorio local a comparar.
+     * @param detail Indica si se muestra información detallada de la
+     * comparación.
+     * @param collection Colección de MongoDB donde se almacenan los archivos
+     * remotos.
+     */
     public static void esDirectorio(String dir_base, String ruta, boolean detail, MongoCollection<Document> collection) {
 
         File file = new File(ruta);

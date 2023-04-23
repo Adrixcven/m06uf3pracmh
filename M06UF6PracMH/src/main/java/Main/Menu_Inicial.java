@@ -15,6 +15,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.io.IOException;
 import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
 import org.bson.Document;
@@ -24,12 +25,14 @@ import org.bson.Document;
  * @author Adrix
  */
 public class Menu_Inicial {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Menu_Inicial.class); 
+
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Menu_Inicial.class);
     private static com.mongodb.client.MongoClient mongoClient;
     private static MongoDatabase bbdd;
     private static MongoCollection<Document> coleccio;
-    public static void main(String[] args) {
-        
+
+    public static void main(String[] args) throws NullPointerException, IOException {
+
         Scanner in = new Scanner(System.in);
         System.out.println("Bienvenido a Los Repositorios.");
         System.out.println("Quieres crear un Repositorio Local?");
@@ -45,13 +48,13 @@ public class Menu_Inicial {
         }
         //Definir repositorio
         Boolean continuar = true;
-        try{
+        try {
             ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
             mongoClient = MongoClients.create(connectionString);
             bbdd = mongoClient.getDatabase("GETBD");
-        }catch (Exception ex){ //TODO cambiar exception
+        } catch (Exception ex) { //TODO cambiar exception
             logger.error("Excepcion: " + ex.toString());
-        }   
+        }
         while (continuar == true) {
             System.out.println("Selecciona una función");
             System.out.println("1. Crear Repositorio Remoto");
@@ -77,7 +80,9 @@ public class Menu_Inicial {
                     break;
                 case 4:
                     System.out.println("Has elegido Bajar Archivo de Repositorio Remoto");
-                    BajarVisual.bajarRemot(in, coleccio, bbdd);
+                    System.out.println("Dame el identificador del repositorio remoto que quieres usar");
+                    var rep = in.nextLine();
+                    BajarVisual.bajarRemot(rep, bbdd);
                     break;
                 case 5:
                     System.out.println("Has elegido Comparar Archivos entre los Repositorio Remotos y Local");
@@ -85,7 +90,10 @@ public class Menu_Inicial {
                     break;
                 case 6:
                     System.out.println("Has elegido Clonar Repositorio Remoto");
-                    ClonarVisual.compararRemot(bbdd);
+                    rep = in.nextLine();
+                    System.out.println("Dame el identificador del repositorio remoto que quieres usar");
+                    rep = in.nextLine();
+                    ClonarVisual.clonar(rep, bbdd);
                     break;
                 case 7:
                     mongoClient.close();

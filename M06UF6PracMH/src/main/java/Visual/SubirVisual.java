@@ -43,16 +43,14 @@ public class SubirVisual {
         Boolean continuar = true;
         int count = 0;
         String rep = "";
+        String repositorio="";
         String ruta = "";
-        File rutarchivo = new File("archivo_vacio.txt");;
+        File rutalocal = new File("archivo_vacio.txt");
+        File rutarchivo = new File("archivo_vacio.txt");
         while (continuar) {
             count = 0;
-            System.out.println("Dame la ruta del repositorio remoto que quieres usar");
-            rep = in.nextLine();
-            //cambiamos el nombre del identificador para que sea.
-            String repConvertida = rep.replace("\\", "/");
-            repConvertida = repConvertida.replaceAll("^[a-zA-Z]:", "");
-            String repositorio = repConvertida.replace("/", "_").substring(1);
+            System.out.println("Dame la id del repositorio remoto que quieres usar");
+            repositorio = in.nextLine();
             //Miramos si existe la colección y, si no existe, dice que no existe y vuelve a preguntarlo
             for (String name : bbdd.listCollectionNames()) {
                 if (name.equals(repositorio)) {
@@ -65,6 +63,18 @@ public class SubirVisual {
                 //Usamos la colección con el identificador que le ponemos
                 coleccio = bbdd.getCollection(repositorio);
                 continuar = false;
+            }
+        }
+        continuar = true;
+        while(continuar){
+            System.out.println("Dime la ruta del repositorio local");
+            rep = in.nextLine();
+            rutalocal = new File(rep);
+            //Miramos si la ruta del repositorio local existe y, si no existe, vuelve a preguntar.
+            if (rutalocal.exists()) {
+                continuar = false;
+            } else {
+                System.out.println("El repositorio local no existe.");
             }
         }
         continuar = true;
@@ -90,14 +100,13 @@ public class SubirVisual {
             if (force == 1) {
                 Subir.esDirectorio(in, coleccio, ruta);
                 continuar = false;
-                System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else if (force == 0) {
                 Subir.esDirectorioNoForce(in, coleccio, ruta);
                 continuar = false;
-                System.out.println("Se ha subido el archivo al repositorio remoto!");
             } else {
                 System.out.println("Error");
             }
         }
     }
 }
+

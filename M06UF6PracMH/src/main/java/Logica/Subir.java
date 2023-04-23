@@ -45,35 +45,38 @@ public class Subir {
             String linea;
             if (file.getName().endsWith(".java") || file.getName().endsWith(".txt")
                     || file.getName().endsWith(".xml") || file.getName().endsWith(".html")) {
-                while ((linea = lector.readLine()) != null) {
-                    sb.append(linea);
-                }
-                lector.close();
-                String string = sb.toString();
-                //Guardamos la ultima fecha de modificación del archivo.
-                Date fechaLocal = new Date(file.lastModified());
-                //Busca en la coleccion el archivo.
-                Document query = new Document("nom", file.getName());
-                Document archivo = coleccio.find(query).first();
-
-                //Si el archivo existe en la colección
-                if (archivo != null) {
-                    //coje la fecha del archivo remoto.
-                    Date fechaRemota = archivo.getDate("fecha_modificacion");
-                    //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
-                    if (fechaLocal.after(fechaRemota)) {
-                        // Actualiza el archivo en la colección con el contenido de la nueva versión
-                        Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
-                        coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
-                        System.out.println("Archivo actualizado.");
-                    } else {
-                        System.out.println("El archivo está actualizado.");
+                long tamano = file.length();
+                if (tamano < 10485760) {
+                    while ((linea = lector.readLine()) != null) {
+                        sb.append(linea);
                     }
-                } else {
-                    // Inserta el archivo a la colección
-                    Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
-                    coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
-                    System.out.println("Archivo insertado en el Repositorio Remoto.");
+                    lector.close();
+                    String string = sb.toString();
+                    //Guardamos la ultima fecha de modificación del archivo.
+                    Date fechaLocal = new Date(file.lastModified());
+                    //Busca en la coleccion el archivo.
+                    Document query = new Document("nom", file.getName());
+                    Document archivo = coleccio.find(query).first();
+
+                    //Si el archivo existe en la colección
+                    if (archivo != null) {
+                        //coje la fecha del archivo remoto.
+                        Date fechaRemota = archivo.getDate("Fecha de modificación");
+                        //Mira si la fecha local es mas actualizada que la fecha del archivo subido.
+                        if (fechaLocal.after(fechaRemota)) {
+                            // Actualiza el archivo en la colección con el contenido de la nueva versión
+                            Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                            coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
+                            System.out.println("Archivo actualizado.");
+                        } else {
+                            System.out.println("El archivo está actualizado.");
+                        }
+                    } else {
+                        // Inserta el archivo a la colección
+                        Archivodata archivo1 = new Archivodata(file.getName(), fechaLocal, string);
+                        coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
+                        System.out.println("Archivo insertado en el Repositorio Remoto.");
+                    }
                 }
             } else {
                 System.out.println("El archivo no es de tipos .java, .txt, .xml o .html.");
@@ -103,26 +106,30 @@ public class Subir {
             String linea;
             if (rutarchivo.getName().endsWith(".java") || rutarchivo.getName().endsWith(".txt")
                     || rutarchivo.getName().endsWith(".xml") || rutarchivo.getName().endsWith(".html")) {
-                while ((linea = lector.readLine()) != null) {
-                    sb.append(linea);
-                }
-                lector.close();
-                String string = sb.toString();
-                Date fechaLocal = new Date(rutarchivo.lastModified());
+                long tamano = rutarchivo.length();
+                if (tamano < 10485760) {
+                    while ((linea = lector.readLine()) != null) {
+                        sb.append(linea);
+                    }
+                    lector.close();
+                    String string = sb.toString();
+                    Date fechaLocal = new Date(rutarchivo.lastModified());
 
-                Document query = new Document("nom", rutarchivo.getName());
-                Document archivo = coleccio.find(query).first();
-                if (archivo != null) {
-                    // Actualiza el archivo en la colección con el contenido de la nueva versión
-                    Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
-                    coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
-                    System.out.println("Archivo actualizado en la base de datos.");
-                } else {
-                    // Inserta el archivo a la colección
-                    Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
-                    coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
-                    System.out.println("Archivo insertado en la base de datos.");
+                    Document query = new Document("nom", rutarchivo.getName());
+                    Document archivo = coleccio.find(query).first();
+                    if (archivo != null) {
+                        // Actualiza el archivo en la colección con el contenido de la nueva versión
+                        Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                        coleccio.updateOne(query, Mapeig.updateDocument(archivo1));
+                        System.out.println("Archivo actualizado en la base de datos.");
+                    } else {
+                        // Inserta el archivo a la colección
+                        Archivodata archivo1 = new Archivodata(rutarchivo.getName(), fechaLocal, string);
+                        coleccio.insertOne(Mapeig.setArchivoToDocument(archivo1));
+                        System.out.println("Archivo insertado en la base de datos.");
+                    }
                 }
+
             } else {
                 System.out.println("El archivo no es de tipos .java, .txt, .xml o .html.");
             }

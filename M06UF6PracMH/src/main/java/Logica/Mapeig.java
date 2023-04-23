@@ -14,23 +14,24 @@ import org.bson.Document;
  */
 /**
  *
- * La clase Mapeig proporciona métodos para convertir datos entre objetos
- * Archivodata y objetos Document de MongoDB.
+ * Esta clase proporciona métodos estáticos para convertir objetos Archivodata
+ * en Documentos de MongoDB y viceversa, así como para actualizar los documentos
+ * existentes.
  */
 public class Mapeig {
 
     /**
      *
-     * Convierte un objeto Archivodata en un objeto Document.
+     * Convierte un objeto Archivodata en un Document de MongoDB.
      *
-     * @param e Archivodata que se desea convertir.
+     * @param e el objeto Archivodata a convertir.
      *
-     * @return Document con los datos del Archivodata.
+     * @return el Documento de MongoDB creado a partir del objeto Archivodata.
      */
     public static Document setArchivoToDocument(Archivodata e) {
 
         Document ret = new Document("nom", e.getNom())
-                .append("tiempo", e.getTiempo())
+                .append("Fecha de modificación", e.getTiempo())
                 .append("contenido", e.getContenido());
 
         return ret;
@@ -38,17 +39,17 @@ public class Mapeig {
 
     /**
      *
-     * Convierte un objeto Document de MongoDB en un objeto Archivodata.
+     * Convierte un Document de MongoDB en un objeto Archivodata.
      *
-     * @param d Document de MongoDB que se desea convertir.
+     * @param d el Documento de MongoDB a convertir.
      *
-     * @return Archivodata con los datos del Document.
+     * @return el objeto Archivodata creado a partir del Document de MongoDB.
      */
     public static Archivodata getArchivoFromDocument(Document d) {
         Archivodata ret = new Archivodata();
 
         ret.setNom(d.getString("nom"));
-        ret.setTiempo(d.getDate("tiempo"));
+        ret.setTiempo(d.getDate("Fecha de modificación"));
         ret.setContenido(d.getString("contenido"));
 
         return ret;
@@ -57,16 +58,17 @@ public class Mapeig {
 
     /**
      *
-     * Actualiza los campos de tiempo y contenido de un objeto Document de
-     * MongoDB a partir de un objeto Archivodata.
+     * Crea un Document de MongoDB para actualizar un registro existente con la
+     * información de un objeto Archivodata.
      *
-     * @param e Archivodata con los datos a actualizar.
+     * @param e el objeto Archivodata que contiene la información actualizada.
      *
-     * @return Document con los datos actualizados.
+     * @return el Documento de MongoDB creado para actualizar el registro
+     * existente.
      */
     public static Document updateDocument(Archivodata e) {
 
-        Document update = new Document("$set", new Document("tiempo", e.getTiempo())
+        Document update = new Document("$set", new Document("Fecha de modificación", e.getTiempo())
                 .append("contenido", e.getContenido()));
 
         return update;
