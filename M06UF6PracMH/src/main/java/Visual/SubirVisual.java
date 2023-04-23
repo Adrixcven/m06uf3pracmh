@@ -43,7 +43,7 @@ public class SubirVisual {
         Boolean continuar = true;
         int count = 0;
         String rep = "";
-        String repositorio="";
+        String repositorio = "";
         String ruta = "";
         File rutalocal = new File("archivo_vacio.txt");
         File rutarchivo = new File("archivo_vacio.txt");
@@ -66,7 +66,7 @@ public class SubirVisual {
             }
         }
         continuar = true;
-        while(continuar){
+        while (continuar) {
             System.out.println("Dime la ruta del repositorio local");
             rep = in.nextLine();
             rutalocal = new File(rep);
@@ -82,6 +82,13 @@ public class SubirVisual {
             System.out.println("Dime el archivo que quieres subir");
             ruta = in.nextLine();
             ruta = rep + "\\" + ruta;
+            String os = System.getProperty("os.name").toLowerCase();
+            boolean isUbuntu = os.contains("ubuntu");
+            if (isUbuntu) {
+            } else {
+                ruta = ruta.replace("\\", "/");
+            }
+            
             rutarchivo = new File(ruta);
             //Miramos si la ruta del archivo existe y, si no existe, vuelve a preguntar.
             if (rutarchivo.exists()) {
@@ -109,4 +116,3 @@ public class SubirVisual {
         }
     }
 }
-

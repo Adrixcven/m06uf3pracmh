@@ -62,6 +62,13 @@ public class Bajar {
 
                 // Comprobar si el archivo existe en la ruta local
                 String rutacompleta = rutaFinal.toString() + "\\" + nombreDocumento;
+                
+                String os = System.getProperty("os.name").toLowerCase();
+                boolean isUbuntu = os.contains("ubuntu");
+                if (isUbuntu) {
+                } else {
+                    rutacompleta = rutacompleta.replace("\\", "/");
+                }
                 File archivoLocal = new File(rutacompleta);
                 if (archivoLocal.exists()) {
                     // Comprobar si la fecha de creación del archivo local es anterior a la fecha de modificación del remoto

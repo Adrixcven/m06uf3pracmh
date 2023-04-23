@@ -16,20 +16,22 @@ import org.bson.Document;
  * @author Adrix
  */
 /**
-
-Esta clase se utiliza para comparar un archivo local con un repositorio remoto.
-*/
+ *
+ * Esta clase se utiliza para comparar un archivo local con un repositorio
+ * remoto.
+ */
 public class CompararVisual {
-/**
 
-Compara un archivo local con un repositorio remoto.
-
-@param coleccio la colección del repositorio remoto.
-
-@param bbdd la base de datos del repositorio remoto.
-
-@throws IOException si ocurre un error durante la lectura de archivos.
-*/
+    /**
+     *
+     * Compara un archivo local con un repositorio remoto.
+     *
+     * @param coleccio la colección del repositorio remoto.
+     *
+     * @param bbdd la base de datos del repositorio remoto.
+     *
+     * @throws IOException si ocurre un error durante la lectura de archivos.
+     */
     public static void compararRemot(MongoCollection<Document> coleccio, MongoDatabase bbdd) throws IOException {
         Scanner in = new Scanner(System.in);
         System.out.println("Dame la id del repositorio remoto que quieres usar");
@@ -45,7 +47,16 @@ Compara un archivo local con un repositorio remoto.
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
-                System.out.println("No se puede comparar con detalles todavia");
+//                coleccio = bbdd.getCollection(rep);
+//                String ruta = "";
+//                if (nombre != "") {
+//                    ruta = nameRep + "\\" + nombre;
+//                } else {
+//                    ruta = nameRep;
+//                }
+//                
+//                Comparar.esDirectorio(rep, ruta, true, coleccio);
+                System.out.println("No funciona con detalles todavia");
                 continuar = false;
             } else if (detalles == 0) {
                 coleccio = bbdd.getCollection(rep);
@@ -54,6 +65,12 @@ Compara un archivo local con un repositorio remoto.
                     ruta = nameRep + "\\" + nombre;
                 } else {
                     ruta = nameRep;
+                }
+                String os = System.getProperty("os.name").toLowerCase();
+                boolean isUbuntu = os.contains("ubuntu");
+                if (isUbuntu) {
+                } else {
+                    ruta = ruta.replace("\\", "/");
                 }
 
                 Comparar.esDirectorio(rep, ruta, false, coleccio);
