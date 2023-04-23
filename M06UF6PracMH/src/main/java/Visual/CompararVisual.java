@@ -45,6 +45,7 @@ Compara un archivo local con un repositorio remoto.
             System.out.println("0. No");
             var detalles = in.nextInt();
             if (detalles == 1) {
+                System.out.println("No está codificado aún.");
                 //Comparar.compararConDetalles(rep, rutaLocal, bbdd);
                 continuar = false;
             } else if (detalles == 0) {
