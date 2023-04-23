@@ -39,7 +39,7 @@ public class Bajar {
      *
      * @throws IOException si ocurre un error al descargar el archivo.
      */
-    public static void Pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
+    public static void pull(String coleccion, MongoDatabase db, String ruta) throws IOException {
         Scanner in = new Scanner(System.in);
         Path rutaFinal = Paths.get(ruta);
 
